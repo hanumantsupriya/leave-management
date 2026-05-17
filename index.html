@@ -176,7 +176,7 @@
     <div id="page3" class="tab-content">
         <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती (Employee Service Info)</h3>
         <div class="info-box">
-            <div><label>कर्मचाऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" placeholder="उदा. हनुमंत रामचन्द्र आडागळे" oninput="saveEmployeeInfo()"></div>
+            <div><label>कर्मчаऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" placeholder="उदा. हनुमंत रामचन्द्र आडागळे" oninput="saveEmployeeInfo()"></div>
             <div><label>पदनाम (Designation):</label><input type="text" id="info_desig" placeholder="उदा. वरिष्ठ लिपिक" oninput="saveEmployeeInfo()"></div>
             <div><label>खाते / कार्यालय विभाग:</label><input type="text" id="info_dept" placeholder="उदा. मुख्य खाते व वित्त विभाग" oninput="saveEmployeeInfo()"></div>
             <div><label>कर्मचारी कोड / PF नंबर:</label><input type="text" id="info_pf" placeholder="उदा. PMC-9922" oninput="saveEmployeeInfo()"></div>
@@ -262,7 +262,6 @@
         return next;
     }
 
-    // दुरुस्ती: मागील रजा तारीख जोडताना हजर दिनांक थेट रजेच्या पहिल्या दिवशी ओव्हरलॅप होणार नाही
     function updateLeaveStartDate() {
         let bVal = document.getElementById('b_end').value;
         if(bVal && bVal.trim() !== "") {
@@ -313,7 +312,6 @@
         let curEL = history.length > 0 ? history[history.length-1].finalEL : initialValues.el;
         let curML = history.length > 0 ? history[history.length-1].finalML : initialValues.ml;
         
-        // अचूक दुरुस्ती: जर 'शेवटचा हजर दिनांक (B)' रिकामी/रिकामी स्ट्रिंग असेल तर हजर दिवस (F) तंतोतंत 0 मोजले जातील
         let f = 0;
         if(b && b.trim() !== "" && b.trim() !== "---") {
             f = (Math.ceil(Math.abs(parseDMY(b) - parseDMY(a)) / (1000 * 60 * 60 * 24)) + 1);
@@ -473,8 +471,12 @@
                 `;
             } else {
                 let lwpValue = (item.e === "" || item.e === undefined || isNaN(item.e)) ? 0 : item.e;
+                
+                // दुरुस्ती: जोडून रजा घेताना (B नसताना) "A - ---" च्या ऐवजी फक्त "---" दिसेल
+                let displayA_B = (item.b === "---") ? "---" : `${item.a} - ${item.b}`;
+                
                 row.innerHTML = `
-                    <td>${item.a} - ${item.b}</td><td>${item.f}</td><td>${lwpValue}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td>
+                    <td>${displayA_B}</td><td>${item.f}</td><td>${lwpValue}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td>
                     <td class="accumulated">${item.k_val.toFixed(2)}</td><td class="accumulated">${item.l_val.toFixed(2)}</td>
                     <td>${item.o} - ${item.p}</td><td>${item.q}</td><td>${item.r_diff}</td>
                     <td class="highlight">${item.finalEL.toFixed(2)}</td><td class="highlight">${item.finalML.toFixed(2)}</td>
@@ -519,7 +521,8 @@
                 row = [`"${item.details}"`, "---", "0", "---", "---", "---", "---", "अतिरिक्त रजा जमा", "---", `+${item.earnedBonus}`, item.finalEL.toFixed(2), item.finalML.toFixed(2)];
             } else {
                 let lwpValue = (item.e === "" || item.e === undefined || isNaN(item.e)) ? 0 : item.e;
-                row = [`"${item.a} - ${item.b}"`, item.f, lwpValue, item.g.toFixed(2), item.h.toFixed(2), item.k_val.toFixed(2), item.l_val.toFixed(2), `"${item.o} - ${item.p}"`, `"${item.q}"`, item.r_diff, item.finalEL.toFixed(2), item.finalML.toFixed(2)];
+                let displayA_B = (item.b === "---") ? "---" : `${item.a} - ${item.b}`;
+                row = [`"${displayA_B}"`, item.f, lwpValue, item.g.toFixed(2), item.h.toFixed(2), item.k_val.toFixed(2), item.l_val.toFixed(2), `"${item.o} - ${item.p}"`, `"${item.q}"`, item.r_diff, item.finalEL.toFixed(2), item.finalML.toFixed(2)];
             }
             csvContent += row.join(",") + "\n";
         });
@@ -544,7 +547,7 @@
         let name = document.getElementById('info_name').value || "कर्मचारी", basic = document.getElementById('basic_pay').value || 0, da = document.getElementById('da_amount').value || 0, elDays = document.getElementById('total_el_shilak').value || 0;
         let validDays = elDays > 300 ? 300 : elDays;
         let totalEncashment = ((parseFloat(basic) + parseFloat(da)) / 30) * validDays;
-        let csvContent = "\uFEFFसेवानिवृत्ती रजा रोखीकरण अहवाल\n\nकर्मчаऱ्याचे नाव," + name + "\nमूळ वेतन,रु. " + basic + "\nमहागाई भत्ता,रु. " + da + "\nएकूण शिल्लक रजा," + elDays + "\nग्राह्य दिवस," + validDays + "\nएकूण रक्कम,रु. " + totalEncashment.toFixed(2) + "\n";
+        let csvContent = "\uFEFFसेवानिवृत्ती रजा रोखीकरण अहवाल\n\nकर्मचाऱ्याचे नाव," + name + "\nमूळ वेतन,रु. " + basic + "\nमहागाई भत्ता,रु. " + da + "\nएकूण शिल्लक रजा," + elDays + "\nग्राह्य दिवस," + validDays + "\nएकूण रक्कम,रु. " + totalEncashment.toFixed(2) + "\n";
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.setAttribute("href", URL.createObjectURL(blob));
