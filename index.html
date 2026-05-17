@@ -16,8 +16,6 @@
         .tab-content.active { display: block; }
 
         .setup-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        
-        /* इंटरफेस: वर लेबल आणि खाली बॉक्स - आडव्या ओळीत */
         .entry-box { background: #fffde7; padding: 15px; border-radius: 8px; border: 1px solid #fbc02d; margin-bottom: 20px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
         .entry-box > div { flex: 1; min-width: 140px; }
         .entry-box .btn-group { flex: initial; display: flex; flex-direction: row; gap: 8px; min-width: auto; flex-wrap: wrap; }
@@ -29,7 +27,6 @@
         .essential-box { background: #e0f2f1; padding: 15px; border-radius: 8px; border: 1px solid #4db6ac; margin-bottom: 20px; }
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; }
         
-        /* बटणे */
         .btn-add { background-color: #1a73e8; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
         .btn-pagebreak { background-color: #0288d1; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
         .btn-excel { background-color: #2e7d32; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
@@ -265,6 +262,16 @@
         return next;
     }
 
+    // दुरुस्ती: मागील रजा तारीख जोडताना हजर दिनांक थेट रजेच्या पहिल्या दिवशी ओव्हरलॅप होणार नाही
+    function updateLeaveStartDate() {
+        let bVal = document.getElementById('b_end').value;
+        if(bVal && bVal.trim() !== "") {
+            document.getElementById('o_leave_start').value = formatDMY(nextDay(parseDMY(bVal)));
+        } else {
+            document.getElementById('o_leave_start').value = document.getElementById('a_start').value;
+        }
+    }
+
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -278,13 +285,9 @@
 
     function setFirstStartDate() {
         if(isFirstEntry && document.getElementById('p3_date').value) {
-            document.getElementById('a_start').value = formatDMY(nextDay(parseDMY(document.getElementById('p3_date').value)));
-        }
-    }
-
-    function updateLeaveStartDate() {
-        if(document.getElementById('b_end').value) {
-            document.getElementById('o_leave_start').value = formatDMY(nextDay(parseDMY(document.getElementById('b_end').value)));
+            let nextA = formatDMY(nextDay(parseDMY(document.getElementById('p3_date').value)));
+            document.getElementById('a_start').value = nextA;
+            document.getElementById('o_leave_start').value = nextA;
         }
     }
 
@@ -310,9 +313,9 @@
         let curEL = history.length > 0 ? history[history.length-1].finalEL : initialValues.el;
         let curML = history.length > 0 ? history[history.length-1].finalML : initialValues.ml;
         
-        // दुरुस्ती: शेवटचा हजर दिनांक (B) मध्ये काहीही न लिहिता थेट रजा जोडल्यास हजर दिवस 0 धरले जातील
+        // अचूक दुरुस्ती: जर 'शेवटचा हजर दिनांक (B)' रिकामी/रिकामी स्ट्रिंग असेल तर हजर दिवस (F) तंतोतंत 0 मोजले जातील
         let f = 0;
-        if(b && b.trim() !== "") {
+        if(b && b.trim() !== "" && b.trim() !== "---") {
             f = (Math.ceil(Math.abs(parseDMY(b) - parseDMY(a)) / (1000 * 60 * 60 * 24)) + 1);
         }
         
@@ -342,14 +345,14 @@
         finalEL = applyLimits(finalEL, 365);
         finalML = applyLimits(finalML, 120);
 
-        history.push({ type: "regular", a, b: b || "---", e, f, g, h, k_val, l_val, o, p, q, r_diff, finalEL, finalML });
+        history.push({ type: "regular", a, b: (b && b.trim() !== "") ? b : "---", e, f, g, h, k_val, l_val, o, p, q, r_diff, finalEL, finalML });
         localStorage.setItem("pmc_leave_history", JSON.stringify(history));
         
         renderTable();
-        document.getElementById('a_start').value = formatDMY(nextDay(parseDMY(p)));
+        let nextA = formatDMY(nextDay(parseDMY(p)));
+        document.getElementById('a_start').value = nextA;
+        document.getElementById('o_leave_start').value = nextA;
         bPick.clear(); pLeavePick.clear();
-        document.getElementById('o_leave_start').value = "";
-        document.getElementById('deleteBtn').style.display = "inline-block";
     }
 
     function calculateBonusLeave() {
@@ -431,7 +434,9 @@
                 localStorage.clear(); location.reload();
             } else {
                 let last = history[history.length - 1];
-                document.getElementById('a_start').value = last.type === "bonus" ? last.nextA : formatDMY(nextDay(parseDMY(last.p)));
+                let nextA = last.type === "bonus" ? last.nextA : formatDMY(nextDay(parseDMY(last.p)));
+                document.getElementById('a_start').value = nextA;
+                document.getElementById('o_leave_start').value = nextA;
                 renderTable();
             }
         }
@@ -462,8 +467,8 @@
             if(item.type === "bonus") {
                 row.className = "bonus-row";
                 row.innerHTML = `
-                    <td>${item.details}</td><td>---</td><td>0</td><td>+${item.earnedBonus}</td><td>---</td>
-                    <td>---</td><td>---</td><td>---</td><td>नियमतः अतिरिक्त रजा मंजुरी</td><td>---</td>
+                    <td>${item.details}</td><td>---</td><td>0</td><td>---</td><td>---</td>
+                    <td>---</td><td>---</td><td>---</td><td>नियमतः अतिरिक्त रजा मंजुरी</td><td>+${item.earnedBonus}</td>
                     <td class="highlight">${item.finalEL.toFixed(2)}</td><td>${item.finalML.toFixed(2)}</td>
                 `;
             } else {
@@ -511,7 +516,7 @@
         history.forEach((item) => {
             let row = [];
             if(item.type === "bonus") {
-                row = [`"${item.details}"`, "---", "0", `+${item.earnedBonus}`, "---", "---", "अतिरिक्त रजा जमा", "---", "---", item.finalEL.toFixed(2), item.finalML.toFixed(2)];
+                row = [`"${item.details}"`, "---", "0", "---", "---", "---", "---", "अतिरिक्त रजा जमा", "---", `+${item.earnedBonus}`, item.finalEL.toFixed(2), item.finalML.toFixed(2)];
             } else {
                 let lwpValue = (item.e === "" || item.e === undefined || isNaN(item.e)) ? 0 : item.e;
                 row = [`"${item.a} - ${item.b}"`, item.f, lwpValue, item.g.toFixed(2), item.h.toFixed(2), item.k_val.toFixed(2), item.l_val.toFixed(2), `"${item.o} - ${item.p}"`, `"${item.q}"`, item.r_diff, item.finalEL.toFixed(2), item.finalML.toFixed(2)];
@@ -539,7 +544,7 @@
         let name = document.getElementById('info_name').value || "कर्मचारी", basic = document.getElementById('basic_pay').value || 0, da = document.getElementById('da_amount').value || 0, elDays = document.getElementById('total_el_shilak').value || 0;
         let validDays = elDays > 300 ? 300 : elDays;
         let totalEncashment = ((parseFloat(basic) + parseFloat(da)) / 30) * validDays;
-        let csvContent = "\uFEFFसेवानिवृत्ती रजा रोखीकरण अहवाल\n\nकर्मचाऱ्याचे नाव," + name + "\nमूळ वेतन,रु. " + basic + "\nमहागाई भत्ता,रु. " + da + "\nएकूण शिल्लक रजा," + elDays + "\nग्राह्य दिवस," + validDays + "\nएकूण रक्कम,रु. " + totalEncashment.toFixed(2) + "\n";
+        let csvContent = "\uFEFFसेवानिवृत्ती रजा रोखीकरण अहवाल\n\nकर्मчаऱ्याचे नाव," + name + "\nमूळ वेतन,रु. " + basic + "\nमहागाई भत्ता,रु. " + da + "\nएकूण शिल्लक रजा," + elDays + "\nग्राह्य दिवस," + validDays + "\nएकूण रक्कम,रु. " + totalEncashment.toFixed(2) + "\n";
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.setAttribute("href", URL.createObjectURL(blob));
