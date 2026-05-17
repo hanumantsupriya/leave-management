@@ -17,9 +17,9 @@
 
         .setup-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         
-        /* इंटरफेस: वर लेबल आणि खाली बॉक्स - आडव्या ओळीत */
+        /* इंटरफेस: वर लेबल आणि खाली बॉक्स - आडव्या ओळीत (LWP इनपुट कॉलम काढला) */
         .entry-box { background: #fffde7; padding: 15px; border-radius: 8px; border: 1px solid #fbc02d; margin-bottom: 20px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-        .entry-box > div { flex: 1; min-width: 135px; }
+        .entry-box > div { flex: 1; min-width: 140px; }
         .entry-box .btn-group { flex: initial; display: flex; flex-direction: row; gap: 8px; min-width: auto; flex-wrap: wrap; }
         
         label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #333; white-space: nowrap; }
@@ -29,7 +29,7 @@
         .essential-box { background: #e0f2f1; padding: 15px; border-radius: 8px; border: 1px solid #4db6ac; margin-bottom: 20px; }
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; }
         
-        /* बटणांची मांडणी फ्रेमच्या आत ठेवण्यासाठी */
+        /* बटणे */
         .btn-add { background-color: #1a73e8; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
         .btn-pagebreak { background-color: #0288d1; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
         .btn-excel { background-color: #2e7d32; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
@@ -85,7 +85,6 @@
         <div class="entry-box">
             <div><label>सुरवातीचा हजर दिनांक (A):</label><input type="text" id="a_start" placeholder="DD/MM/YYYY" readonly></div>
             <div><label>शेवटचा हजर दिनांक (B):</label><input type="text" id="b_end" placeholder="DD/MM/YYYY"></div>
-            <div><label>बिन पगारी रजा LWP (E):</label><input type="number" id="e_lwp" value="0"></div>
             <div><label>रजेवर गेल्याचा दिनांक (O):</label><input type="text" id="o_leave_start" placeholder="DD/MM/YYYY" readonly></div>
             <div><label>रजा संपल्याचा दिनांक (P):</label><input type="text" id="p_leave_end" placeholder="DD/MM/YYYY"></div>
             <div>
@@ -94,7 +93,8 @@
                     <option value="हक्काची रजा">हक्काची रजा</option>
                     <option value="वैद्यकीय रजा">वैद्यकीय रजा</option>
                     <option value="विशेष रजा">विशेष रजा</option>
-                    <option value="LWP (बिनपगारी)">LWP (बिनपगारी रजा)</option> </select>
+                    <option value="LWP (बिनपगारी रजा)">LWP (बिनपगारी रजा)</option>
+                </select>
             </div>
             
             <div class="btn-group">
@@ -110,11 +110,11 @@
             <h4 style="margin: 0 0 10px 0; color: #004d40;">अत्यावश्यक सेवा कर्मचारी - अतिरिक्त १५ रजा गणना (User Option)</h4>
             <div class="grid-3">
                 <div>
-                    <label>अतिरिक्त रजा सुरुवातीचा दिनांक:</label>
+                    <label>अकलूज/अतिरिक्त रजा सुरुवातीचा दिनांक:</label>
                     <input type="text" id="bonus_start_date" placeholder="DD/MM/YYYY">
                 </div>
                 <div>
-                    <label>अतिरिक्त रजा शेवटचा दिनांक:</label>
+                    <label>अकलूज/अतिरिक्त रजा शेवटचा दिनांक:</label>
                     <input type="text" id="bonus_end_date" placeholder="DD/MM/YYYY">
                 </div>
                 <div>
@@ -131,7 +131,6 @@
                 <tr>
                     <th>हजर दिनांक (A-B) / तपशील</th>
                     <th>हजर दिवस (F)</th>
-                    <th>LWP (E)</th>
                     <th>साठलेली EL (G)</th>
                     <th>साठलेली ML (H)</th>
                     <th>एकूण साठलेली EL (K)</th>
@@ -152,8 +151,7 @@
             <thead>
                 <tr class="summary-header">
                     <th>पान नंबर (Page No)</th>
-                    <th>एकूण हजर दिनांक दिवस (Total F)</th>
-                    <th>एकूण LWP (Total E)</th>
+                    <th>एकूण हजर दिवस (Total F)</th>
                     <th>एकूण साठलेली EL (Total G)</th>
                     <th>एकूण साठलेली ML (Total H)</th>
                     <th>एकूण गैरहजर रजा दिवस (Total R)</th>
@@ -179,7 +177,7 @@
     <div id="page3" class="tab-content">
         <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती (Employee Service Info)</h3>
         <div class="info-box">
-            <div><label>कर्मчаऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" placeholder="उदा. हनुमंत रामचन्द्र आडागळे" oninput="saveEmployeeInfo()"></div>
+            <div><label>कर्मचाऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" placeholder="उदा. हनुमंत रामचन्द्र आडागळे" oninput="saveEmployeeInfo()"></div>
             <div><label>पदनाम (Designation):</label><input type="text" id="info_desig" placeholder="उदा. वरिष्ठ लिपिक" oninput="saveEmployeeInfo()"></div>
             <div><label>खाते / कार्यालय विभाग:</label><input type="text" id="info_dept" placeholder="उदा. मुख्य खाते व वित्त विभाग" oninput="saveEmployeeInfo()"></div>
             <div><label>कर्मचारी कोड / PF नंबर:</label><input type="text" id="info_pf" placeholder="उदा. PMC-9922" oninput="saveEmployeeInfo()"></div>
@@ -294,10 +292,9 @@
 
     function addEntry() {
         let a = document.getElementById('a_start').value, b = document.getElementById('b_end').value;
-        let e = parseFloat(document.getElementById('e_lwp').value) || 0;
         let o = document.getElementById('o_leave_start').value, p = document.getElementById('p_leave_end').value;
         let q = document.getElementById('q_type').value;
-        if (!a || !p) { alert("कृपया सर्व तारखा भरा!"); return; }
+        if (!a || !p) { alert("कृपया सर्व आवश्यक तारखा भरा!"); return; }
 
         if (isFirstEntry) {
             initialValues = { el: parseFloat(document.getElementById('z3_bal').value) || 0, ml: parseFloat(document.getElementById('aa3_bal').value) || 0, p3: document.getElementById('p3_date').value };
@@ -311,10 +308,9 @@
         let curEL = history.length > 0 ? history[history.length-1].finalEL : initialValues.el;
         let curML = history.length > 0 ? history[history.length-1].finalML : initialValues.ml;
         
-        // जर मॅन्युअली किंवा जोडून घेतलेली रजा असेल तर हजर दिवस 0 येतील
         let f = 0;
         if(b) {
-            f = (Math.ceil(Math.abs(parseDMY(b) - parseDMY(a)) / (1000 * 60 * 60 * 24)) + 1) - e;
+            f = (Math.ceil(Math.abs(parseDMY(b) - parseDMY(a)) / (1000 * 60 * 60 * 24)) + 1);
         }
         
         let g = Math.floor(f / 11) + (f % 11) / 100;
@@ -334,9 +330,7 @@
         } else if (q === "वैद्यकीय रजा") {
             finalEL = applyLimits(Math.max(0, Math.floor(k_val) - Math.max(0, r_diff - Math.floor(l_val)) + (k_val % 1)), 365);
             finalML = (r_diff >= Math.floor(l_val)) ? (l_val % 1) : (Math.floor(l_val) - r_diff + (l_val % 1));
-        } else if (q === "LWP (बिनपगारी)") {
-            // जर रजा प्रकार LWP निवडला असेल, तर ती संख्या मूळ 'E' (LWP) मध्ये अधिक होऊन शिल्लक EL/ML वर परिणाम करणार नाही.
-            e = e + r_diff;
+        } else if (q === "LWP (बिनपगारी रजा)") {
             finalEL = k_val;
             finalML = l_val;
         } else { finalEL = k_val; finalML = l_val; }
@@ -344,14 +338,13 @@
         finalEL = applyLimits(finalEL, 365);
         finalML = applyLimits(finalML, 120);
 
-        history.push({ type: "regular", a, b: b || a, e, f, g, h, k_val, l_val, o, p, q, r_diff, finalEL, finalML });
+        history.push({ type: "regular", a, b: b || a, e: (q === "LWP (बिनपगारी रजा)" ? r_diff : 0), f, g, h, k_val, l_val, o, p, q, r_diff, finalEL, finalML });
         localStorage.setItem("pmc_leave_history", JSON.stringify(history));
         
         renderTable();
         document.getElementById('a_start').value = formatDMY(nextDay(parseDMY(p)));
         bPick.clear(); pLeavePick.clear();
         document.getElementById('o_leave_start').value = "";
-        document.getElementById('e_lwp').value = "0"; 
         document.getElementById('deleteBtn').style.display = "inline-block";
     }
 
@@ -365,26 +358,22 @@
         let dEnd = parseDMY(endStr);
         let totalCalendarDays = Math.ceil(Math.abs(dEnd - dStart) / (1000 * 60 * 60 * 24)) + 1;
         let totalR = 0;
-        let totalE = 0;
 
         history.forEach(item => {
-            if(item.type !== "bonus") {
-                let itemO = parseDMY(item.o);
-                let itemP = parseDMY(item.p);
-                if(itemO >= dStart && itemP <= dEnd) {
-                    totalR += item.r_diff;
-                    totalE += item.e;
-                }
+            let itemO = parseDMY(item.o);
+            let itemP = parseDMY(item.p);
+            if(itemO >= dStart && itemP <= dEnd) {
+                totalR += item.r_diff;
             }
         });
-        let dutyDays = totalCalendarDays - (totalR + totalE);
+        let dutyDays = totalCalendarDays - totalR;
         if(dutyDays < 0) dutyDays = 0;
         let rawExtraLeave = (dutyDays * 15) / 365;
         let extraLeaveFloor = Math.floor(rawExtraLeave); 
 
         tempBonusCalculated = extraLeaveFloor;
         tempBonusPeriod = `${startStr} ते ${endStr}`;
-        document.getElementById('bonusResultMsg').innerHTML = `निवडलेल्या अवधीचे एकूण दिवस: ${totalCalendarDays} दिवस<br>एकूण घेतलेल्या रजा: ${totalR} दिवस | एकूण LWP: ${totalE} दिवस<br>प्रत्यक्ष कामाचे दिवस (Duty Days): ${dutyDays} दिवस<br>🎯 एकूण पात्र अतिरिक्त रजा (केवळ मुख्य पूर्णांक संख्या): ${extraLeaveFloor} दिवस`;
+        document.getElementById('bonusResultMsg').innerHTML = `निवडलेल्या अवधीचे एकूण दिवस: ${totalCalendarDays} दिवस<br>एकूण खर्च झालेल्या सर्व रजा/LWP: ${totalR} दिवस<br>प्रत्यक्ष कामाचे दिवस (Duty Days): ${dutyDays} दिवस<br>🎯 एकूण पात्र अतिरिक्त रजा (केवळ मुख्य पूर्णांक संख्या): ${extraLeaveFloor} दिवस`;
         document.getElementById('saveBonusBtn').style.display = "inline-block";
     }
 
@@ -475,15 +464,14 @@
                     <td class="highlight">${item.finalEL.toFixed(2)}</td><td>${item.finalML.toFixed(2)}</td>
                 `;
             } else {
-                let lwpValue = (item.e === "" || item.e === undefined || isNaN(item.e)) ? 0 : item.e;
                 row.innerHTML = `
-                    <td>${item.a} - ${item.b}</td><td>${item.f}</td><td>${lwpValue}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td>
+                    <td>${item.a} - ${(item.q === "LWP (बिनपगारी रजा)" ? "---" : item.b)}</td><td>${item.f}</td><td>${item.e}</td><td>${item.g.toFixed(2)}</td><td>${item.h.toFixed(2)}</td>
                     <td class="accumulated">${item.k_val.toFixed(2)}</td><td class="accumulated">${item.l_val.toFixed(2)}</td>
                     <td>${item.o} - ${item.p}</td><td>${item.q}</td><td>${item.r_diff}</td>
                     <td class="highlight">${item.finalEL.toFixed(2)}</td><td class="highlight">${item.finalML.toFixed(2)}</td>
                 `;
-                pgF += item.f; pgE += lwpValue; pgG += item.g; pgH += item.h; pgR += item.r_diff;
-                grandF += item.f; grandE += lwpValue; grandG += item.g; grandH += item.h; grandR += item.r_diff;
+                pgF += item.f; pgE += item.e; pgG += item.g; pgH += item.h; pgR += item.r_diff;
+                grandF += item.f; grandE += item.e; grandG += item.g; grandH += item.h; grandR += item.r_diff;
             }
 
             if (pageBreaks.includes(index) || index === history.length - 1) {
@@ -521,8 +509,7 @@
             if(item.type === "bonus") {
                 row = [`"${item.details}"`, "---", "0", `+${item.earnedBonus}`, "---", "---", "अतिरिक्त रजा जमा", "---", "---", item.finalEL.toFixed(2), item.finalML.toFixed(2)];
             } else {
-                let lwpValue = (item.e === "" || item.e === undefined || isNaN(item.e)) ? 0 : item.e;
-                row = [`"${item.a} - ${item.b}"`, item.f, lwpValue, item.g.toFixed(2), item.h.toFixed(2), item.k_val.toFixed(2), item.l_val.toFixed(2), `"${item.o} - ${item.p}"`, `"${item.q}"`, item.r_diff, item.finalEL.toFixed(2), item.finalML.toFixed(2)];
+                row = [`"${item.a} - ${item.b}"`, item.f, item.e, item.g.toFixed(2), item.h.toFixed(2), item.k_val.toFixed(2), item.l_val.toFixed(2), `"${item.o} - ${item.p}"`, `"${item.q}"`, item.r_diff, item.finalEL.toFixed(2), item.finalML.toFixed(2)];
             }
             csvContent += row.join(",") + "\n";
         });
@@ -547,7 +534,7 @@
         let name = document.getElementById('info_name').value || "कर्मचारी", basic = document.getElementById('basic_pay').value || 0, da = document.getElementById('da_amount').value || 0, elDays = document.getElementById('total_el_shilak').value || 0;
         let validDays = elDays > 300 ? 300 : elDays;
         let totalEncashment = ((parseFloat(basic) + parseFloat(da)) / 30) * validDays;
-        let csvContent = "\uFEFFसेवानिवृत्ती रजा रोखीकरण अहवाल\n\nकर्मचाऱ्याचे नाव," + name + "\nमूळ वेतन,रु. " + basic + "\nमहागाई भत्ता,रु. " + da + "\nएकूण शिल्लक रजा," + elDays + "\nग्राह्य दिवस," + validDays + "\nएकूण रक्कम,रु. " + totalEncashment.toFixed(2) + "\n";
+        let csvContent = "\uFEFFसेवानिवृत्ती रजा रोखीकरण अहवाल\n\nकर्मчаऱ्याचे नाव," + name + "\nमूळ वेतन,रु. " + basic + "\nमहागाई भत्ता,रु. " + da + "\nएकूण शिल्लक रजा," + elDays + "\nग्राह्य दिवस," + validDays + "\nएकूण रक्कम,रु. " + totalEncashment.toFixed(2) + "\n";
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.setAttribute("href", URL.createObjectURL(blob));
