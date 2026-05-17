@@ -43,6 +43,7 @@
         
         .page-break-row { background-color: #0d47a1 !important; color: white; font-weight: bold; font-size: 12px; }
         .bonus-row { background-color: #e65100 !important; color: white; font-weight: bold; font-size: 12px; }
+        .bonus-details-cell { text-align: left !important; padding: 8px; line-height: 1.4; font-size: 11px; }
         .summary-header { background-color: #2e7d32; color: white; }
         .grand-total-row { background-color: #c8e6c9; font-weight: bold; font-size: 13px; color: #1b5e20; }
         
@@ -59,7 +60,7 @@
 
     <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('page1')">१. रजा नोंदणी पुस्तिका (सर्व पाने)</button>
-        <button class="tab-btn" onclick="switchTab('page2')">२. शिल्लक रजा वेतन (Encashment)</button>
+        <button class="tab-btn" onclick="switchTab('page2')">२. निवृत्ती शिल्लक रजा वेतन (Encashment)</button>
         <button class="tab-btn" onclick="switchTab('page3')">३. कर्मचाऱ्यांची माहिती</button>
     </div>
 
@@ -176,7 +177,7 @@
     <div id="page3" class="tab-content">
         <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती (Employee Service Info)</h3>
         <div class="info-box">
-            <div><label>कर्मचाऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" placeholder="उदा. हनुमंत रामचन्द्र आडागळे" oninput="saveEmployeeInfo()"></div>
+            <div><label>कर्मчаऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" placeholder="उदा. हनुमंत रामचन्द्र आडागळे" oninput="saveEmployeeInfo()"></div>
             <div><label>पदनाम (Designation):</label><input type="text" id="info_desig" placeholder="उदा. वरिष्ठ लिपिक" oninput="saveEmployeeInfo()"></div>
             <div><label>खाते / कार्यालय विभाग:</label><input type="text" id="info_dept" placeholder="उदा. मुख्य खाते व वित्त विभाग" oninput="saveEmployeeInfo()"></div>
             <div><label>कर्मचारी कोड / PF नंबर:</label><input type="text" id="info_pf" placeholder="उदा. PMC-9922" oninput="saveEmployeeInfo()"></div>
@@ -198,6 +199,10 @@
     let initialValues = {};
     let tempBonusCalculated = 0; 
     let tempBonusPeriod = "";
+    // ऑडिट ट्रॅकिंग सुलभतेसाठी मोजलेले आकडे साठवणे
+    let tempTotalDays = 0;
+    let tempSpentDays = 0;
+    let tempDutyDays = 0;
 
     const config = { dateFormat: "d/m/Y", allowInput: true };
     const p3Pick = flatpickr("#p3_date", { ...config, onChange: setFirstStartDate });
@@ -378,6 +383,10 @@
 
         tempBonusCalculated = extraLeaveFloor;
         tempBonusPeriod = `${startStr} ते ${endStr}`;
+        tempTotalDays = totalCalendarDays;
+        tempSpentDays = totalR;
+        tempDutyDays = dutyDays;
+
         document.getElementById('bonusResultMsg').innerHTML = `निवडलेल्या अवधीचे एकूण दिवस: ${totalCalendarDays} दिवस<br>एकूण खर्च झालेल्या सर्व रजा/LWP: ${totalR} दिवस<br>प्रत्यक्ष कामाचे दिवस (Duty Days): ${dutyDays} दिवस<br>🎯 एकूण पात्र अतिरिक्त रजा (केवळ मुख्य पूर्णांक संख्या): ${extraLeaveFloor} दिवस`;
         document.getElementById('saveBonusBtn').style.display = "inline-block";
     }
@@ -399,14 +408,17 @@
             finalEL: updatedEL,
             finalML: currentML,
             nextA: nextStartDateStr,
-            // अवधी ट्रॅकिंगसाठी बोनस तारखा मॅप केल्या
             bonusStart: tempBonusPeriod.split(" ते ")[0],
-            bonusEnd: tempBonusPeriod.split(" ते ")[1]
+            bonusEnd: tempBonusPeriod.split(" ते ")[1],
+            // ऑडिटसाठी अधिकृत आकडेवारीचे रेकॉर्ड साठवले
+            totalDays: tempTotalDays,
+            spentDays: tempSpentDays,
+            dutyDays: tempDutyDays
         });
         localStorage.setItem("pmc_leave_history", JSON.stringify(history));
         renderTable();
 
-        document.getElementById('bonusResultMsg').innerText = "अकलूज/अतिरिक्त रजा यशस्वीरित्या तक्त्यात जमा केली आहे!";
+        document.getElementById('bonusResultMsg').innerText = "अतिरिक्त रजा यशस्वीरित्या तक्त्यात जमा केली आहे!";
         document.getElementById('saveBonusBtn').style.display = "none";
         tempBonusCalculated = 0;
     }
@@ -464,23 +476,26 @@
         let pgF = 0, pgE = 0, pgG = 0, pgH = 0, pgR = 0;
         let grandF = 0, grandE = 0, grandG = 0, grandH = 0, grandR = 0;
         
-        // चालू पानावरील तारखांचा अवधी शोधण्यासाठी व्हेरिएबल्स
         let pageStartDate = "";
-        let pageStartIndex = 0;
 
         history.forEach((item, index) => {
-            // जर पानावरील पहिली नोंद असेल तर तिची तारीख नोंदवा
             if (pageStartDate === "") {
                 pageStartDate = (item.type === "bonus") ? item.bonusStart : item.a;
-                pageStartIndex = index;
             }
 
             let row = tbody.insertRow();
             if(item.type === "bonus") {
                 row.className = "bonus-row";
+                // दुरुस्ती हजर दिनांक/तपशील कॉलममध्ये संपूर्ण ऑडिट आकडेवारी दाखवणे
                 row.innerHTML = `
-                    <td>${item.details}</td><td>---</td><td>0</td><td>---</td><td>---</td>
-                    <td>---</td><td>---</td><td>---</td><td>नियमतः अतिरिक्त रजा मंजुरी</td><td>+${item.earnedBonus}</td>
+                    <td class="bonus-details-cell">
+                        <strong>${item.details}</strong><br>
+                        • निवडलेल्या अवधीचे एकूण दिवस: ${item.totalDays || 0} दिवस<br>
+                        • एकूण खर्च झालेल्या सर्व रजा/LWP: ${item.spentDays || 0} दिवस<br>
+                        • प्रत्यक्ष कामाचे दिवस (Duty Days): ${item.dutyDays || 0} दिवस
+                    </td>
+                    <td>---</td><td>0</td><td>---</td><td>---</td>
+                    <td>---</td><td>---</td><td>---</td><td>अतिरिक्त रजा मंजुरी</td><td>+${item.earnedBonus}</td>
                     <td class="highlight">${item.finalEL.toFixed(2)}</td><td>${item.finalML.toFixed(2)}</td>
                 `;
             } else {
@@ -497,9 +512,7 @@
                 grandF += item.f; grandE += lwpValue; grandG += item.g; grandH += item.h; grandR += item.r_diff;
             }
 
-            // जर पेज ब्रेक लागला किंवा ही शेवटची नोंद असेल तर क्लोजर करा
             if (pageBreaks.includes(index) || index === history.length - 1) {
-                // पानावरील शेवटची तारीख ठरवा
                 let pageEndDate = (item.type === "bonus") ? item.bonusEnd : item.p;
                 let pagePeriodText = `${pageStartDate} ते ${pageEndDate}`;
 
@@ -515,7 +528,6 @@
                 let chartRow = chartBody.insertRow();
                 chartRow.innerHTML = `<td>पान नंबर ${pageNum} (${pagePeriodText})</td><td>${pgF}</td><td>${pgE}</td><td>${pgG.toFixed(2)}</td><td>${pgH.toFixed(2)}</td><td>${pgR}</td>`;
 
-                // पुढील पानाच्या तयारीसाठी डेटा रीसेट करा
                 pageNum++;
                 pgF = 0; pgE = 0; pgG = 0; pgH = 0; pgR = 0;
                 pageStartDate = ""; 
@@ -538,7 +550,8 @@
         history.forEach((item) => {
             let row = [];
             if(item.type === "bonus") {
-                row = [`"${item.details}"`, "---", "0", "---", "---", "---", "---", "अतिरिक्त रजा जमा", "---", `+${item.earnedBonus}`, item.finalEL.toFixed(2), item.finalML.toFixed(2)];
+                let excelDetails = `${item.details} [एकूण दिवस: ${item.totalDays}, रजा खर्च: ${item.spentDays}, Duty Days: ${item.dutyDays}]`;
+                row = [`"${excelDetails}"`, "---", "0", "---", "---", "---", "---", "अतिरिक्त रजा जमा", "---", `+${item.earnedBonus}`, item.finalEL.toFixed(2), item.finalML.toFixed(2)];
             } else {
                 let lwpValue = (item.e === "" || item.e === undefined || isNaN(item.e)) ? 0 : item.e;
                 let displayA_B = (item.b === "---") ? "---" : `${item.a} - ${item.b}`;
@@ -567,7 +580,7 @@
         let name = document.getElementById('info_name').value || "कर्मचारी", basic = document.getElementById('basic_pay').value || 0, da = document.getElementById('da_amount').value || 0, elDays = document.getElementById('total_el_shilak').value || 0;
         let validDays = elDays > 300 ? 300 : elDays;
         let totalEncashment = ((parseFloat(basic) + parseFloat(da)) / 30) * validDays;
-        let csvContent = "\uFEFFसेवानिवृत्ती रजा रोखीकरण अहवाल\n\nकर्मчаऱ्याचे नाव," + name + "\nमूळ वेतन,रु. " + basic + "\nमहागाई भत्ता,रु. " + da + "\nएकूण शिल्लक रजा," + elDays + "\nग्राह्य दिवस," + validDays + "\nएकूण रक्कम,रु. " + totalEncashment.toFixed(2) + "\n";
+        let csvContent = "\uFEFFसेवानिवृत्ती रजा रोखीकरण अहवाल\n\nकर्मचाऱ्याचे नाव," + name + "\nमूळ वेतन,रु. " + basic + "\nमहागाई भत्ता,रु. " + da + "\nएकूण शिल्लक रजा," + elDays + "\nग्राह्य दिवस," + validDays + "\nएकूण रक्कम,रु. " + totalEncashment.toFixed(2) + "\n";
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.setAttribute("href", URL.createObjectURL(blob));
