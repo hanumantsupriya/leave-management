@@ -295,8 +295,13 @@
         }
     }
 
+     // सुधारित लिमिट फंक्शन: कमाल मर्यादेच्या वर दशांश गुणक (Points) शिल्लक न ठेवता कॅल्क्युलेशन सरळ करणे
     function applyLimits(val, maxLimit) {
-        return (Math.floor(val) >= maxLimit) ? maxLimit + (Math.round((val % 1) * 100) / 100) : val;
+        let integerPart = Math.floor(val);
+        if (integerPart >= maxLimit) {
+            return maxLimit; // कमाल मर्यादेवर गेल्यास वरचे दशांश पूर्णपणे काढून ३६५ किंवा १२० वर स्थिरावणे
+        }
+        return val;
     }
 
     function addEntry() {
@@ -324,21 +329,30 @@
         
         let g = Math.floor(f / 11) + (f % 11) / 100;
         let h = Math.floor(f / 30) + (f % 30) / 100;
+        
         let z3_int = Math.floor(curEL), z3_mod = Math.round((curEL % 1) * 100);
         let g_int = Math.floor(g), g_mod = Math.round((g % 1) * 100);
         let k_val = applyLimits(z3_int + g_int + Math.floor((z3_mod + g_mod)/11) + ((z3_mod + g_mod)%11)/100, 365);
+
         let aa3_int = Math.floor(curML), aa3_mod = Math.round((curML % 1) * 100);
         let h_int = Math.floor(h), h_mod = Math.round((h % 1) * 100);
         let l_val = applyLimits(aa3_int + h_int + Math.floor((aa3_mod + h_mod)/30) + ((aa3_mod + h_mod)%30)/100, 120);
+        
         let r_diff = Math.ceil(Math.abs(parseDMY(p) - parseDMY(o)) / (1000 * 60 * 60 * 24)) + 1;
 
         let finalEL, finalML, e = 0;
+        // वजाबाकी करताना कमाल मर्यादेच्या बेसवरून हिशोब करणे
+        let k_base = Math.floor(k_val);
+        let k_dec = Math.round((k_val % 1) * 100) / 100;
+        let l_base = Math.floor(l_val);
+        let l_dec = Math.round((l_val % 1) * 100) / 100;
+
         if (q === "हक्काची रजा") {
-            finalEL = (r_diff >= Math.floor(k_val)) ? (k_val % 1) : (Math.floor(k_val) - r_diff + (k_val % 1));
+            finalEL = (r_diff >= k_base) ? k_dec : (k_base - r_diff + k_dec);
             finalML = l_val;
         } else if (q === "वैद्यकीय रजा") {
-            finalEL = applyLimits(Math.max(0, Math.floor(k_val) - Math.max(0, r_diff - Math.floor(l_val)) + (k_val % 1)), 365);
-            finalML = (r_diff >= Math.floor(l_val)) ? (l_val % 1) : (Math.floor(l_val) - r_diff + (l_val % 1));
+            finalEL = applyLimits(Math.max(0, k_base - Math.max(0, r_diff - l_base) + k_dec), 365);
+            finalML = (r_diff >= l_base) ? l_dec : (l_base - r_diff + l_dec);
         } else if (q === "LWP (बिनपगारी रजा)") {
             e = r_diff;
             finalEL = k_val;
@@ -396,6 +410,7 @@
         let lastRecord = history[history.length - 1];
         let currentEL = lastRecord.finalEL;
         let currentML = lastRecord.finalML;
+        
         let newEL_int = Math.floor(currentEL), newEL_mod = Math.round((currentEL % 1) * 100);
         let updatedEL = applyLimits(newEL_int + tempBonusCalculated + (newEL_mod / 100), 365);
 
@@ -410,7 +425,6 @@
             nextA: nextStartDateStr,
             bonusStart: tempBonusPeriod.split(" ते ")[0],
             bonusEnd: tempBonusPeriod.split(" ते ")[1],
-            // ऑडिटसाठी अधिकृत आकडेवारीचे रेकॉर्ड साठवले
             totalDays: tempTotalDays,
             spentDays: tempSpentDays,
             dutyDays: tempDutyDays
@@ -418,7 +432,7 @@
         localStorage.setItem("pmc_leave_history", JSON.stringify(history));
         renderTable();
 
-        document.getElementById('bonusResultMsg').innerText = "अतिरिक्त रजा यशस्वीरित्या तक्त्यात जमा केली आहे!";
+        document.getElementById('bonusResultMsg').innerText = "अकलूज/अतिरिक्त रजा यशस्वीरित्या तक्त्यात जमा केली आहे!";
         document.getElementById('saveBonusBtn').style.display = "none";
         tempBonusCalculated = 0;
     }
