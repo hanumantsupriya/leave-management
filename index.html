@@ -34,30 +34,15 @@ input:disabled, input[readonly] { background-color: #eee; color: #555; }
 .btn-add { background-color: #1a73e8; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
 .btn-pagebreak { background-color: #0288d1; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
 .btn-excel { background-color: #2e7d32; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
-.btn-delete { background-color: #d32f2f; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
 .btn-clear { background-color: #555555; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; white-space: nowrap; text-align: center; }
 table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }
 th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
 th { background-color: #1a73e8; color: white; }
 tr:nth-child(even) { background-color: #f9f9f9; }
-.summary-header { background-color: #2e7d32; color: white; }
-.grand-total-row { background-color: #c8e6c9 !important; font-weight: bold; font-size: 13px; color: #1b5e20; }
-.lwp-report-header { background-color: #795548; color: white; }
-.all-leave-report-header { background-color: #00796b; color: white; }
-.result-card { background: #ffffff; padding: 15px; border: 2px dashed #2e7d32; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 18px; font-weight: bold; color: #1b5e20; }
-.footer-msg { margin-top: 30px; padding: 15px; background-color: #eeeeee; border-radius: 8px; text-align: center; font-size: 14px; color: #333; border: 1px solid #ccc; }
-.macp-result-box { background: #e0f2f1; border: 2px solid #004d40; padding: 20px; border-radius: 8px; margin-top: 20px; line-height: 1.6; font-size: 15px; }
-.cr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
-.macp-options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; background: #fff3e0; padding: 15px; border-radius: 8px; border: 1px solid #ffe0b2; }
-.macp-stage-card { background: #ffffff; border: 1px solid #ffcc80; padding: 12px; border-radius: 6px; }
-.macp-stage-card h5 { margin: 0 0 10px 0; color: #e65100; border-bottom: 1px solid #ffe0b2; padding-bottom: 5px; }
-.employee-select-box { background: #e8f5e9; padding: 15px; border-radius: 8px; border: 1px solid #a5d6a7; margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-end; }
-.import-box { background: #fff3e0; border: 1px dashed #e65100; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-.encashment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
-.encash-card { background: #f1f8e9; border: 1px solid #c8e6c9; padding: 15px; border-radius: 8px; }
-.encash-card h4 { margin: 0 0 10px 0; color: #2e7d32; border-bottom: 1px solid #c8e6c9; padding-bottom: 5px; }
 .sub-table-header { background-color: #9c27b0; color: white; font-weight: bold; }
 .col-wide-basic { min-width: 95px !important; width: 95px !important; }
+.result-card { background: #ffffff; padding: 15px; border: 2px dashed #2e7d32; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 18px; font-weight: bold; color: #1b5e20; }
+.footer-msg { margin-top: 30px; padding: 15px; background-color: #eeeeee; border-radius: 8px; text-align: center; font-size: 14px; color: #333; border: 1px solid #ccc; }
 </style>
 </head>
 <body>
@@ -73,14 +58,6 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             </select>
         </div>
         <div style="font-weight: bold; color: #1b5e20; padding-bottom: 10px;" id="current_active_emp_label">🎯 सद्या ॲक्टिव्ह: नवीन नोंदणी पुस्तिका</div>
-    </div>
-
-    <div class="import-box">
-        <div>
-            <span style="font-weight:bold; color:#e65100;">📥 आधीच्या पीसीवरील अर्धवट कामाची एक्सेल (.csv) फाईल इथे अपलोड करा:</span>
-            <input type="file" id="excel_file_import" accept=".csv" style="display:inline-block; width:auto; margin-left:15px; height:auto; padding:4px;">
-        </div>
-        <button class="btn-pagebreak" style="background-color:#e65100; height:34px;" onclick="alert('फंक्शनॅलिटी लोड होत आहे...')">फायलीचा डेटा लोड करा</button>
     </div>
 
     <div class="tab-bar">
@@ -118,13 +95,8 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                     <option value="सुरेंडर रजा">सुरेंडर रजा (Surrender Leave)</option>
                 </select>
             </div>
-            <div id="surrender_days_div" style="display: none; min-width: 130px; flex: 1;">
-                <label style="color: #d32f2f;">💥 सुरेंडर रजा दिवस:</label>
-                <input type="number" id="surrender_days_input" placeholder="उदा. 15 किंवा 30" min="1">
-            </div>
             <div class="btn-group">
                 <button class="btn-add" id="saveEntryBtn" onclick="addEntry()">जतन करा (Save Entry)</button>
-                <button class="btn-pagebreak" onclick="alert('पेज ब्रेक केला')">🛑 पेज ब्रेक करा (Manual Break)</button>
                 <button class="btn-excel" onclick="downloadExcel()">Excel डाउनलोड करा</button>
                 <button class="btn-clear" onclick="clearAllData()">सर्व डेटा पुसा</button>
             </div>
@@ -136,7 +108,6 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                 <button class="btn-add-row" onclick="addLwpRow()">+ आणखी कालावधी जोडा</button>
             </div>
             <div id="lwpContainer"></div>
-            <div id="lwpStatusMsg" class="lwp-status"></div>
         </div>
 
         <h3>नोंदींचा तक्ता (Leave Record Table)</h3>
@@ -155,41 +126,26 @@ tr:nth-child(even) { background-color: #f9f9f9; }
     <!-- PAGE 2 -->
     <div id="page2" class="tab-content">
         <h3>सेवानिवृत्ती रजा रोखीकरण गणना (Leave Encashment Calculator)</h3>
-        <div class="encashment-grid">
-            <div class="encash-card">
-                <h4>📋 हक्काची रजा (EL) हिशोब रोखीकरण</h4>
-                <div><label>एकूण शिल्लक हक्काची रजा (Total EL Balance):</label><input type="number" id="total_el_shilak" placeholder="उदा. 240" oninput="calculateEncashment()"></div>
-            </div>
-            <div class="encash-card" style="background-color: #fff3e0; border-color: #ffe0b2;">
-                <h4 style="color: #e65100;">📋 वैद्यकीय रजा (ML) हिशोब</h4>
-                <div><label>एकूण शिल्लक मेडिकल रजा (ML Balance):</label><input type="number" id="total_ml_shilak" placeholder="उदा. 120"></div>
-            </div>
-        </div>
-
         <div class="setup-box" style="grid-template-columns: 1fr 1fr;">
-            <div><label>मूळ वेतन (Basic Pay - रु.):</label><input type="number" id="basic_pay" placeholder="उदा. 56100" oninput="calculateEncashment()"></div>
-            <div><label>महागाई भत्ता (DA - रु.):</label><input type="number" id="da_amount" placeholder="उदा. 28050" oninput="calculateEncashment()"></div>
-        </div>
-        <div class="result-card" id="encashmentResult">माहिती भरा, रक्कम येथे दिसेल.</div>
-        <div style="margin-top: 15px; text-align: right;">
-            <button class="btn-excel" style="width: auto; padding: 10px 25px;" onclick="downloadEncashmentExcel()">निवृत्ती रजा हिशोब Excel डाउनलोड करा</button>
+            <div><label>मूळ वेतन (Basic Pay - रु.):</label><input type="number" id="basic_pay" placeholder="उदा. 56100"></div>
+            <div><label>महागाई भत्ता (DA - रु.):</label><input type="number" id="da_amount" placeholder="उदा. 28050"></div>
         </div>
     </div>
 
     <!-- PAGE 3 -->
     <div id="page3" class="tab-content">
-        <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती (Employee Service Info)</h3>
+        <h3>कर्मचाऱ्यांची वैयक्तिक व सेवा माहिती</h3>
         <div class="info-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
             <div><label>कर्मचाऱ्याचे पूर्ण नाव:</label><input type="text" id="info_name" placeholder="उदा. हनुमंत रामचन्द्र आडागळे"></div>
-            <div><label>पदनाम (Designation):</label><input type="text" id="info_desig" placeholder="उदा. वरिष्ठ लिपिक"></div>
-            <div><label> खात्याचे नाव:</label><input type="text" id="info_dept" placeholder="उदा. मुख्य खाते विभाग"></div>
         </div>
     </div>
 
     <!-- PAGE 4 -->
     <div id="page4" class="tab-content">
         <h3>७ व्या वेतन आयोग परिपत्रकानुसार (MACPS)</h3>
-        <div id="macpResult" class="macp-result-box">रजा नोंदणीच्या आधारे येथे स्वयंचलित गणना दिसेल.</div>
+        <div class="macp-box">
+            <div><label>प्रथम नियुक्ती दिनांक (रुजू दिनांक):</label><input type="text" id="macp_join_date" placeholder="DD/MM/YYYY"></div>
+        </div>
     </div>
 
     <!-- PAGE 5 -->
@@ -198,8 +154,9 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         <div class="entry-box" style="background: #f3e5f5; border: 1px solid #9c27b0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
             <div>
                 <label>वेतन आयोग प्रकार:</label>
-                <select id="fix_pay_comm">
+                <select id="fix_pay_comm" onchange="initializeFixationDropdowns()">
                     <option value="7">७ वा वेतन आयोग (S-Levels)</option>
+                    <option value="6">६ वा वेतन आयोग (Grade Pay)</option>
                 </select>
             </div>
             <div><label>सध्याचा वेतन स्तर (Drawn Level):</label><select id="fix_drawn_level"></select></div>
@@ -232,34 +189,37 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="11" style="color: #666; text-align: center;">अजून कोणतीही गणना केलेली नाही. माहिती भरून बटणावर क्लिक करा.</td></tr>
+                    <tr><td colspan="11" style="color: #666; text-align: center;">अजून कोणतीही गणना केलेली नाही.</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     <div class="footer-msg">
-        सदर software बद्दल आपल्या काही सूचना किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
+        सदर software बद्दल आपल्या काही সূচনা किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-const payMatrix = {
-    "S-8": [25500, 26300, 27100, 27900, 28700, 29600, 30500, 31400, 32300, 33300, 34300, 35300, 36400, 37500, 38600, 39800, 41000, 42200, 43500, 44800],
-    "S-10": [29200, 30100, 31000, 31900, 32900, 33900, 34900, 35900, 37000, 38100, 39200, 40400, 41600, 42800, 44100, 45400, 46800, 48200, 49600, 51100]
-};
+const payMatrix = {};
+// S-1 ते S-31 चे सर्व स्तर स्वयंचलित तयार करणे
+for(let i=1; i<=31; i++) {
+    let key = "S-" + i;
+    payMatrix[key] = [15000 + (i*1000)];
+    for(let j=1; j<40; j++) { payMatrix[key].push(Math.round(payMatrix[key][j-1] * 1.03 / 100) * 100); }
+}
 
 let history = [];
 let calculatedStatements = [];
 let config = { dateFormat: "d/m/Y", allowInput: true };
 
-// Flatpickr Initializations
 flatpickr("#p3_date", config);
 flatpickr("#a_start", config);
 flatpickr("#b_end", config);
 flatpickr("#o_leave_start", config);
 flatpickr("#p_leave_end", config);
+flatpickr("#macp_join_date", config);
 flatpickr("#fix_start_date", { ...config, defaultDate: "01/03/2019" });
 flatpickr("#fix_end_date", { ...config, defaultDate: "01/03/2026" });
 
@@ -286,8 +246,10 @@ function handleContinuousLeave() {
 function handleSurrenderLeaveType() {
     let qType = document.getElementById('q_type').value; 
     let surrenderDiv = document.getElementById('surrender_days_div');
-    if (qType === "सुरेंडर रजा") { surrenderDiv.style.display = "block"; } 
-    else { surrenderDiv.style.display = "none"; }
+    if (surrenderDiv) {
+        if (qType === "सुरेंडर रजा") { surrenderDiv.style.display = "block"; } 
+        else { surrenderDiv.style.display = "none"; }
+    }
 }
 
 function toggleLwpPanel() {
@@ -326,15 +288,39 @@ function renderTable() {
     });
 }
 
+// ----------------- स्तरांचे पर्याय दाखवणारे मुख्य फंक्शन (FIXED) -----------------
 function initializeFixationDropdowns() {
     let drSel = document.getElementById('fix_drawn_level'); 
     let duSel = document.getElementById('fix_due_level'); 
     if(!drSel || !duSel) return;
-    drSel.innerHTML = "<option value='S-8'>S-8</option>"; 
-    duSel.innerHTML = "<option value='S-10'>S-10</option>";
+    
+    drSel.innerHTML = ""; 
+    duSel.innerHTML = "";
+    
+    let is7th = document.getElementById('fix_pay_comm').value === "7";
+    
+    if(is7th) {
+        // ७ व्या वेतन आयोगाचे S-1 ते S-31 चे सर्व स्तर दाखवणे
+        for(let i=1; i<=31; i++) {
+            let opt1 = document.createElement('option'); opt1.value = "S-"+i; opt1.innerText = "S-"+i;
+            let opt2 = document.createElement('option'); opt2.value = "S-"+i; opt2.innerText = "S-"+i;
+            if(i===8) opt1.selected = true; // Default वरिष्ठ लिपिक
+            if(i===10) opt2.selected = true; // Default मुख्य लिपिक
+            drSel.appendChild(opt1); duSel.appendChild(opt2);
+        }
+    } else {
+        // ६ व्या वेतन आयोगाचे सर्व Grade Pay दाखवणे
+        const gradePays = [1300, 1400, 1600, 1650, 1800, 1900, 2000, 2400, 2800, 4200, 4300, 4400, 4600, 4800, 5400, 6600, 7600, 8700];
+        gradePays.forEach(gp => {
+            let opt1 = document.createElement('option'); opt1.value = "GP-"+gp; opt1.innerText = "Grade Pay " + gp;
+            let opt2 = document.createElement('option'); opt2.value = "GP-"+gp; opt2.innerText = "Grade Pay " + gp;
+            if(gp===2400) opt1.selected = true;
+            if(gp===2800) opt2.selected = true;
+            drSel.appendChild(opt1); duSel.appendChild(opt2);
+        });
+    }
 }
 
-// ----------------- AUTOMATIC FIXATION LOGIC WITH CONFIRMATION -----------------
 function calculateAutomaticFixationDiff() {
     let drawnLevel = document.getElementById('fix_drawn_level').value; 
     let dueLevel = document.getElementById('fix_due_level').value; 
@@ -346,7 +332,6 @@ function calculateAutomaticFixationDiff() {
     let dStart = parseDMY(startStr);
     let startMonth = dStart ? dStart.getMonth() + 1 : 1;
     
-    // १ किंवा २ वेतनवाढ लॉजिक विचारणे
     let bonusIncrements = (startMonth >= 1 && startMonth <= 6) ? 1 : 2;
     if (bonusIncrements === 2) {
         let isConfirm = confirm("नियमानुसार या कालावधीसाठी २ वेतनवाढी (2 Increments) लागू होत आहेत. तुम्हाला २ वेतनवाढी द्यायच्या आहेत का?\n(फक्त १ वेतनवाढ लागू करण्यासाठी 'Cancel' दाबा.)");
@@ -364,7 +349,6 @@ function calculateAutomaticFixationDiff() {
     let msgBox = document.getElementById('fixationRuleMsg');
     msgBox.style.display = "block"; msgBox.innerHTML = formattedMsg;
     
-    // तक्ता तयार करणे
     calculatedStatements = [{ month: "MAR-19", actualDays: 31, presentDays: 31, daRate: 0.12, drBasic: drawnBasicStart, duBasic: dueBasicStart }];
     renderStatementTable();
 }
@@ -385,17 +369,11 @@ function renderStatementTable() {
     });
 }
 
-// ----------------- EXCEL DOWNLOADS -----------------
 function downloadExcel() {
     if(history.length===0){alert("डेटा नाही!"); return;}
     let csv = "\uFEFFहजर दिनांक,हजर दिवस\n";
     history.forEach(i => csv += `"${i.a} - ${i.b}",${i.f}\n`);
     triggerDownload(csv, "Leave_Record.csv");
-}
-
-function downloadEncashmentExcel() {
-    let csv = "\uFEFFशिल्लक रजा अहवाल\nमूळ वेतन," + (document.getElementById('basic_pay').value || 0) + "\n";
-    triggerDownload(csv, "Encashment_Report.csv");
 }
 
 function downloadFixationStatementExcel() {
@@ -414,7 +392,6 @@ function triggerDownload(csvContent, fileName) {
 
 function clearFixationStatement() { calculatedStatements = []; renderStatementTable(); document.getElementById('fixationRuleMsg').style.display = "none"; }
 function clearAllData() { history = []; renderTable(); }
-function calculateEncashment() {}
 </script>
 </body>
 </html>
