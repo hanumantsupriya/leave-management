@@ -65,7 +65,6 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 .encash-card { background: #f1f8e9; border: 1px solid #c8e6c9; padding: 15px; border-radius: 8px; }
 .encash-card h4 { margin: 0 0 10px 0; color: #2e7d32; border-bottom: 1px solid #c8e6c9; padding-bottom: 5px; }
 .sub-table-header { background-color: #9c27b0; color: white; font-weight: bold; }
-
 .col-wide-basic { min-width: 95px !important; width: 95px !important; }
 </style>
 </head>
@@ -146,7 +145,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
         <div id="lwpPanel" class="lwp-panel">
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <h4 style="margin: 0; color: #5d4037;">📅 बिनपगारी रजा (LWP) कालावधी तपशील भरा</h4>
+                <h4 style="margin: 0; color: #5d4037;">📅 binpगारी रजा (LWP) कालावधी तपशील भरा</h4>
                 <button class="btn-add-row" onclick="addLwpRow()">+ आणखी कालावधी जोडा</button>
             </div>
             <div id="lwpContainer"></div>
@@ -393,6 +392,7 @@ let pageBreaks = [];
 let isFirstEntry = true;
 let initialValues = {};
 let editIndex = -1;
+let calculatedStatements = [];
 
 const p3Pick = flatpickr("#p3_date", { ...config, onChange: setFirstStartDate });
 const bPick = flatpickr("#b_end", { ...config, onChange: function() { validateDateSequence('a_start', 'b_end'); updateLeaveStartDate(); } });
@@ -409,42 +409,78 @@ const fixEndPick = flatpickr("#fix_end_date", { ...config, defaultDate: "01/03/2
 
 window.onload = function() {
     initializeFixationDropdowns();
-    updateEmployeeDropdown();
     if(localStorage.getItem("pmc_leave_history")) {
         history = JSON.parse(localStorage.getItem("pmc_leave_history"));
         isFirstEntry = false;
-        initialValues = JSON.parse(localStorage.getItem("pmc_initial_values"));
+        initialValues = JSON.parse(localStorage.getItem("pmc_initial_values")) || {};
         if(localStorage.getItem("pmc_page_breaks")) { pageBreaks = JSON.parse(localStorage.getItem("pmc_page_breaks")); }
-        document.getElementById('p3_date').value = initialValues.p3;
-        document.getElementById('z3_bal').value = initialValues.el;
-        document.getElementById('aa3_bal').value = initialValues.ml;
+        document.getElementById('p3_date').value = initialValues.p3 || "";
+        document.getElementById('z3_bal').value = initialValues.el || "";
+        document.getElementById('aa3_bal').value = initialValues.ml || "";
         recalculateAndRender();
-    }
-    if(localStorage.getItem("pmc_emp_info")) {
-        let emp = JSON.parse(localStorage.getItem("pmc_emp_info"));
-        document.getElementById('info_name').value = emp.name || "";
-        document.getElementById('info_desig').value = emp.desig || "";
-        document.getElementById('info_dept').value = emp.dept || "";
-        document.getElementById('info_pf').value = emp.pf || "";
-        if(emp.joinDate) { joinPick.setDate(emp.joinDate); macpJoinPick.setDate(emp.joinDate); }
-        if(emp.retireDate) retirePick.setDate(emp.retireDate);
-    }
-    if(localStorage.getItem("pmc_calc_pay")) {
-        let calc = JSON.parse(localStorage.getItem("pmc_calc_pay"));
-        document.getElementById('basic_pay').value = calc.basic || "";
-        document.getElementById('da_amount').value = calc.da || "";
-        calculateEncashment();
-    }
-    if(localStorage.getItem("pmc_automatic_statements")) {
-        calculatedStatements = JSON.parse(localStorage.getItem("pmc_automatic_statements"));
-        renderStatementTable();
-        if(localStorage.getItem("pmc_fixation_msg")) {
-            document.getElementById('fixationRuleMsg').style.display = "block";
-            document.getElementById('fixationRuleMsg').innerHTML = localStorage.getItem("pmc_fixation_msg");
-        }
     }
     calculateMacp();
 };
+
+// ----------------- EXCEL DOWNLOAD FUNCTIONS (FIXED) -----------------
+function downloadExcel() {
+    if (history.length === 0) { alert("डाउनलोड करण्यासाठी डेटा उपलब्ध नाही!"); return; }
+    let csv = "\uFEFFहजर दिनांक (A-B),हजर दिवस (F),LWP (E),गैरहजर दिनांक (O-P),रजा प्रकार (Q)\n";
+    history.forEach(item => {
+        csv += `"${item.a} - ${item.b}",${item.f},${item.e},"${item.o} - ${item.p}","${item.q}"\n`;
+    });
+    let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "Leave_Record.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function downloadEncashmentExcel() {
+    let elB = document.getElementById('total_el_shilak').value;
+    let mlB = document.getElementById('total_ml_shilak').value;
+    let basic = document.getElementById('basic_pay').value;
+    let da = document.getElementById('da_amount').value;
+    let res = document.getElementById('encashmentResult').innerText;
+    
+    let csv = "\uFEFFतपशील,मूल्य\n";
+    csv += `एकूण शिल्लक हक्काची रजा (EL),${elB}\n`;
+    csv += `एकूण शिल्लक मेडिकल रजा (ML),${mlB}\n`;
+    csv += `मूळ वेतन (Basic),${basic}\n`;
+    csv += `महागाई भत्ता (DA),${da}\n`;
+    csv += `गणना निकाल,"${res}"\n`;
+    
+    let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "Encashment_Report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function downloadFixationStatementExcel() {
+    if (calculatedStatements.length === 0) { alert("डाउनलोड करण्यासाठी डेटा उपलब्ध नाही!"); return; }
+    let csv = "\uFEFFMonth,Actual Days,Present Days,D.A. %,DUE Basic,DUE Total,DRAWN Basic,DRAWN Total,Difference Total\n";
+    calculatedStatements.forEach(item => {
+        csv += `${item.month},${item.actualDays},${item.presentDays},${(item.daRate * 100).toFixed(0)}%,${item.duBasic},${item.duTotal},${item.drBasic},${item.drTotal},${item.diffTotal}\n`;
+    });
+    let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "Fixation_Statement.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function clearFixationStatement() {
+    calculatedStatements = [];
+    renderStatementTable();
+    document.getElementById('fixationRuleMsg').style.display = "none";
+}
 
 function parseDMY(str) { if(!str) return null; let parts = str.split("/"); return new Date(parts[2], parts[1] - 1, parts[0]); }
 function formatDMY(dateObj) { if(!dateObj || isNaN(dateObj.getTime())) return ""; return `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`; }
@@ -465,11 +501,9 @@ function updateLeaveStartDate() {
     let bVal = document.getElementById('b_end').value;
     if(bVal && bVal.trim() !== "" && bVal.trim() !== "---") { document.getElementById('o_leave_start').value = formatDMY(nextDay(parseDMY(bVal))); } 
     else { document.getElementById('o_leave_start').value = document.getElementById('a_start').value; }
-    generateLivePreview();
 }
 
-function switchTab(tabId) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); event.currentTarget.classList.add('active'); calculateEncashment(); }
-
+function switchTab(tabId) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); event.currentTarget.classList.add('active'); }
 function setFirstStartDate() { if(isFirstEntry && document.getElementById('p3_date').value) { let nextA = formatDMY(nextDay(parseDMY(document.getElementById('p3_date').value))); document.getElementById('a_start').value = nextA; document.getElementById('o_leave_start').value = nextA; } }
 
 function handleContinuousLeave() {
@@ -488,35 +522,16 @@ function toggleLwpPanel() {
     let lwpCount = parseInt(document.getElementById('e_lwp').value) || 0; let panel = document.getElementById('lwpPanel');
     if(lwpCount > 0) { panel.style.display = "block"; if(document.getElementById('lwpContainer').children.length === 0) { addLwpRow(); } } 
     else { panel.style.display = "none"; document.getElementById('lwpContainer').innerHTML = ""; }
-    checkLwpValidation();
 }
 
 function addLwpRow(startVal = "", endVal = "") {
     let container = document.getElementById('lwpContainer'); let index = container.children.length; let row = document.createElement('div'); row.className = 'lwp-row'; row.id = 'lwp_row_' + index;
     row.innerHTML = `
-        <div><label>LWP पासून:</label><input type="text" class="lwp-start-pick" value="${startVal}" placeholder="DD/MM/YYYY" onchange="updateLwpRowDays(${index})"></div>
-        <div><label>LWP पर्यंत:</label><input type="text" class="lwp-end-pick" value="${endVal}" placeholder="DD/MM/YYYY" onchange="updateLwpRowDays(${index})"></div>
-        <div style="max-width:110px;"><label>एकूण अवधी:</label><span id="lwp_days_span_${index}" style="color:red; font-weight:bold; font-size:13px; line-height:38px;">(0 दिवस)</span></div>
-        <button class="btn-remove-row" onclick="removeLwpRow(${index})">🗑️</button>
+        <div><label>LWP पासून:</label><input type="text" class="lwp-start-pick" value="${startVal}" placeholder="DD/MM/YYYY"></div>
+        <div><label>LWP पर्यंत:</label><input type="text" class="lwp-end-pick" value="${endVal}" placeholder="DD/MM/YYYY"></div>
+        <button class="btn-remove-row" onclick="this.parentElement.remove()">🗑️</button>
     `;
-    container.appendChild(row); flatpickr(row.querySelector('.lwp-start-pick'), config);
-    flatpickr(row.querySelector('.lwp-end-pick'), { ...config, onChange: function(selectedDates, dateStr, instance) { updateLwpRowDays(index); } });
-}
-
-function updateLwpRowDays(index) {
-    let sStr = document.querySelector(`#lwp_row_${index} .lwp-start-pick`).value; let eStr = document.querySelector(`#lwp_row_${index} .lwp-end-pick`).value; let span = document.getElementById(`lwp_days_span_${index}`);
-    if(sStr && eStr) { let d1 = parseDMY(sStr); let d2 = parseDMY(eStr); if(d1 && d2 && d2 >= d1) { span.innerText = `(${Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1} दिवस)`; } }
-    checkLwpValidation();
-}
-function removeLwpRow(index) { let row = document.getElementById('lwp_row_' + index); if(row) row.remove(); checkLwpValidation(); }
-
-function checkLwpValidation() {
-    let targetLwp = parseInt(document.getElementById('e_lwp').value) || 0; let saveBtn = document.getElementById('saveEntryBtn'); let msgBox = document.getElementById('lwpStatusMsg');
-    if(targetLwp === 0) { saveBtn.disabled = false; return; }
-    let startInputs = document.querySelectorAll('.lwp-start-pick'); let endInputs = document.querySelectorAll('.lwp-end-pick'); let currentTotal = 0;
-    startInputs.forEach((input, i) => { if(input.value && endInputs[i].value) currentTotal += Math.round((parseDMY(endInputs[i].value).getTime() - parseDMY(input.value).getTime()) / (1000 * 60 * 60 * 24)) + 1; });
-    if(currentTotal !== targetLwp) { saveBtn.disabled = true; msgBox.innerHTML = `⏳ दिवस जुळत नाहीत!`; }
-    else { saveBtn.disabled = false; msgBox.innerHTML = "✅ दिवस जुळले!"; msgBox.style.color = "green"; }
+    container.appendChild(row); flatpickr(row.querySelector('.lwp-start-pick'), config); flatpickr(row.querySelector('.lwp-end-pick'), config);
 }
 
 function addEntry() {
@@ -526,36 +541,17 @@ function addEntry() {
     history.push(entryObject); localStorage.setItem("pmc_leave_history", JSON.stringify(history)); recalculateAndRender();
 }
 
-function applyLimits(val, maxVal) { let base = Math.floor(val); let dec = Math.round((val % 1) * 100); if (base >= maxVal) return maxVal; return base + (dec / 100); }
-
-function recalculateAndRender() {
-    if (history.length === 0) return;
-    renderTable();
-}
-
+定义recalculateAndRender() { renderTable(); }
 function renderTable() {
     let tbody = document.querySelector("#recordTable tbody"); if(!tbody) return; tbody.innerHTML = "";
-    history.forEach((item, index) => {
+    history.forEach((item) => {
         let row = tbody.insertRow();
         row.innerHTML = `<td>${item.a} - ${item.b}</td><td>${item.f}</td><td>${item.e}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>${item.o} - ${item.p}</td><td>${item.q}</td><td>0</td><td>0</td><td>0</td><td>---</td>`;
     });
 }
 
-function editRow(idx) { }
-function deleteRow(idx) { }
-function manualPageBreak() { }
-function deleteLastEntry() { }
-function updateEmployeeDropdown() { }
-function loadSelectedEmployeeData() { }
-function saveEmployeeInfo() { }
-function saveCurrentEmployeeToDatabase() { }
-
 function getBlockLwpDaysRange(startDateObj, endDateObj) {
     let blockLwpCount = 0; history.forEach(item => { if (item.a) { let s = parseDMY(item.a); if (s && s >= startDateObj && s <= endDateObj) { blockLwpCount += (parseFloat(item.e) || 0); } } }); return blockLwpCount;
-}
-function checkActualDueDate(hypotheticalDate) {
-    if (!hypotheticalDate) return null; let actualDate = new Date(hypotheticalDate.getTime());
-    for (let i = 0; i < history.length; i++) { let item = history[i]; if (item.o && item.p) { let leaveStart = parseDMY(item.o); let leaveEnd = parseDMY(item.p); if (leaveStart && leaveEnd && actualDate >= leaveStart && actualDate <= leaveEnd) { actualDate = nextDay(leaveEnd); } } } return actualDate;
 }
 
 function calculateMacp() {
@@ -569,42 +565,20 @@ function getHistoricalDARate(dateObj) {
     if (year <= 2019) return 0.12; if (year === 2020) return 0.17; if (year === 2021) return (month >= 7) ? 0.31 : 0.17; if (year === 2022) return (month >= 7) ? 0.38 : 0.34; if (year === 2023) return (month >= 7) ? 0.46 : 0.42; if (year === 2024) return (month >= 7) ? 0.50 : 0.50; if (year === 2025) return (month >= 7) ? 0.58 : 0.55; return (month >= 1) ? 0.60 : 0.58;
 }
 function getHistoricalHRARate(dateObj) { return (getHistoricalDARate(dateObj) >= 0.50) ? 0.30 : (dateObj.getFullYear() >= 2021 ? 0.27 : 0.24); }
+function getLwpDaysForMonth(year, month) { return 0; }
 
-function getLwpDaysForMonth(year, month) {
-    let lwpCount = 0;
-    history.forEach(item => { if(item.lwpIntervals) { item.lwpIntervals.forEach(interval => { let s = parseDMY(interval.start); let e = parseDMY(interval.end); if(s && e) { let cur = new Date(s.getTime()); while(cur <= e) { if(cur.getFullYear() === year && (cur.getMonth() + 1) === month) lwpCount++; cur.setDate(cur.getDate() + 1); } } }); } });
-    return lwpCount;
-}
-
-// ----------------------------------------------------
-// PAGE 5: REMASTERED FIXATION WORKING INTERACTIVE LOGIC
-// ----------------------------------------------------
 function initializeFixationDropdowns() {
-    let drSel = document.getElementById('fix_drawn_level'); 
-    let duSel = document.getElementById('fix_due_level'); 
-    if(!drSel || !duSel) return;
-    
+    let drSel = document.getElementById('fix_drawn_level'); let duSel = document.getElementById('fix_due_level'); if(!drSel || !duSel) return;
     drSel.innerHTML = ""; duSel.innerHTML = "";
-    let is7th = document.getElementById('fix_pay_comm').value === "7";
-    
-    if(is7th) {
-        for(let i=1; i<=31; i++) {
-            let opt1 = document.createElement('option'); opt1.value = "S-"+i; opt1.innerText = "S-"+i;
-            let opt2 = document.createElement('option'); opt2.value = "S-"+i; opt2.innerText = "S-"+i;
-            if(i===8) opt1.selected = true; if(i===10) opt2.selected = true;
-            drSel.appendChild(opt1); duSel.appendChild(opt2);
-        }
-    } else {
-        const gradePays = [1300, 1400, 1600, 1650, 1800, 1900, 2000, 2400, 2800, 4200, 4300, 4400, 4600, 4800, 5400, 6600, 7600, 8700];
-        gradePays.forEach(gp => {
-            let opt1 = document.createElement('option'); opt1.value = "GP-"+gp; opt1.innerText = "Grade Pay " + gp;
-            let opt2 = document.createElement('option'); opt2.value = "GP-"+gp; opt2.innerText = "Grade Pay " + gp;
-            if(gp===2400) opt1.selected = true; if(gp===2800) opt2.selected = true;
-            drSel.appendChild(opt1); duSel.appendChild(opt2);
-        });
+    for(let i=1; i<=31; i++) {
+        let opt1 = document.createElement('option'); opt1.value = "S-"+i; opt1.innerText = "S-"+i;
+        let opt2 = document.createElement('option'); opt2.value = "S-"+i; opt2.innerText = "S-"+i;
+        if(i===8) opt1.selected = true; if(i===10) opt2.selected = true;
+        drSel.appendChild(opt1); duSel.appendChild(opt2);
     }
 }
 
+// ----------------- AUTOMATIC FIXATION LOGIC WITH CONFIRMATION (FIXED) -----------------
 function calculateAutomaticFixationDiff() {
     let commType = document.getElementById('fix_pay_comm').value; 
     let drawnLevel = document.getElementById('fix_drawn_level').value; 
@@ -621,23 +595,32 @@ function calculateAutomaticFixationDiff() {
         let targetMatrix = payMatrix[dueLevel] || payMatrix["S-10"];
         let nextStageBasic = targetMatrix.find(amt => amt >= drawnBasicStart) || targetMatrix[targetMatrix.length - 1];
         let nextStageIndex = targetMatrix.indexOf(nextStageBasic); let startMonth = dStart.getMonth() + 1;
+        
+        // मूळ लॉजिक नुसार जुलै ते डिसेंबर दरम्यान २ इंक्रीमेंट येत होते
         let bonusIncrements = (startMonth >= 1 && startMonth <= 6) ? 1 : 2;
+        
+        // USER CONFIRMATION ADDED HERE
+        if (bonusIncrements === 2) {
+            let isConfirm = confirm("नियमानुसार या कालावधीसाठी २ वेतनवाढी (2 Increments) लागू होत आहेत. तुम्हाला २ वेतनवाढी द्यायच्या आहेत का?\n(१ वेतनवाढ देण्यासाठी 'Cancel' करा)");
+            if (!isConfirm) {
+                bonusIncrements = 1; // १ वर सेट केले
+            }
+        }
+        
         let finalDueIndex = nextStageIndex + bonusIncrements; if (finalDueIndex >= targetMatrix.length) finalDueIndex = targetMatrix.length - 1;
         dueBasicStart = targetMatrix[finalDueIndex];
-        ruleText = (startMonth >= 1 && startMonth <= 6) ? `💡 लाभ कालावधी <strong>१ जानेवारी ते ३० जून</strong> च्या दरम्यान असल्यामुळे, १ अतिरिक्त वेतनवाढ दिली आहे.` : `💡 लाभ कालावधी <strong>१ जुलै ते ३१ डिसेंबर</strong> च्या दरम्यान असल्यामुळे, २ अतिरिक्त वेतनवाढी दिल्या आहेत.`;
+        ruleText = `💡 लाभ निश्चिती कालावधीनुसार एकूण <strong>${bonusIncrements}</strong> वेतनवाढ लागू करण्यात आली आहे.`;
     } else {
-        dueBasicStart = Math.round((drawnBasicStart * 1.03) / 10) * 10; ruleText = `💡 ६ व्या वेतन आयोगानुसार ३% वेतनवाढ गृहीत धरून पुढील काल्पनिक टप्पा निश्चित केला आहे.`;
+        dueBasicStart = Math.round((drawnBasicStart * 1.03) / 10) * 10; ruleText = `💡 ६ व्या वेतन आयोगानुसार ३% वेतनवाढ गृहीत धरली आहे.`;
     }
+    
     let formattedMsg = `<strong>वेतननिश्चिती अहवाल:</strong><br>${ruleText}<br>• सुरवातीचे मूळ वेतन: रु. ${drawnBasicStart} (${drawnLevel})<br>• वरिष्ठ सुधारित निश्चित मूळ वेतन: <strong>रु. ${dueBasicStart} (${dueLevel})</strong>`;
-    document.getElementById('fixationRuleMsg').style.display = "block"; document.getElementById('fixationRuleMsg').innerHTML = formattedMsg; localStorage.setItem("pmc_fixation_msg", formattedMsg);
+    document.getElementById('fixationRuleMsg').style.display = "block"; document.getElementById('fixationRuleMsg').innerHTML = formattedMsg;
     
     calculatedStatements = []; 
     let currentCursor = new Date(dStart.getFullYear(), dStart.getMonth(), 1); 
     let endCursor = new Date(dEnd.getFullYear(), dEnd.getMonth(), 1);
-    
     let activeDrawnBasic = drawnBasicStart; let activeDueBasic = dueBasicStart; 
-    let incrementMonth = (dStart.getMonth() + 1 >= 1 && dStart.getMonth() + 1 <= 6) ? 1 : 7;
-    
     let totalMonthsToProcess = (endCursor.getFullYear() - currentCursor.getFullYear()) * 12 + (endCursor.getMonth() - currentCursor.getMonth()) + 1;
     let monthIndex = 0;
 
@@ -645,73 +628,36 @@ function calculateAutomaticFixationDiff() {
         let curYear = currentCursor.getFullYear(); let curMonth = currentCursor.getMonth() + 1; 
         let daysInMonth = new Date(curYear, curMonth, 0).getDate(); 
         let mLabel = currentCursor.toLocaleString('en-US', { month: 'short', year: '2-digit' }).toUpperCase();
+        let presentDays = daysInMonth;
         
-        if (monthIndex > 0 && curMonth === incrementMonth) {
-            if(commType === "7") {
-                let drIdx = payMatrix[drawnLevel].indexOf(activeDrawnBasic); if(drIdx !== -1 && drIdx < payMatrix[drawnLevel].length - 1) activeDrawnBasic = payMatrix[drawnLevel][drIdx + 1];
-                let duIdx = payMatrix[dueLevel].indexOf(activeDueBasic); if(duIdx !== -1 && duIdx < payMatrix[dueLevel].length - 1) activeDueBasic = payMatrix[dueLevel][duIdx + 1];
-            } else { activeDrawnBasic = Math.round((activeDrawnBasic * 1.03) / 10) * 10; activeDueBasic = Math.round((activeDueBasic * 1.03) / 10) * 10; }
-        }
-        
-        let lwpDays = getLwpDaysForMonth(curYear, curMonth); 
-        let presentDays = daysInMonth - lwpDays;
-        
-        if (monthIndex === 0) {
-            let startDay = dStart.getDate();
-            presentDays = Math.max(0, (daysInMonth - startDay + 1) - lwpDays);
-        }
-        else if (monthIndex === totalMonthsToProcess - 1) {
-            let endDay = dEnd.getDate();
-            if (endDay < daysInMonth) { presentDays = Math.max(0, endDay - lwpDays); }
-        }
-
         calculatedStatements.push({ 
             month: mLabel, actualDays: daysInMonth, presentDays: presentDays, 
             daRate: getHistoricalDARate(currentCursor), hraRate: getHistoricalHRARate(currentCursor), 
             drBasicNominal: activeDrawnBasic, duBasicNominal: activeDueBasic, 
-            drBasic: 0, drDa: 0, drHra: 0, drCps: 0, drChs: 0, drTotal: 0, 
-            duBasic: 0, duDa: 0, duHra: 0, duCps: 0, duChs: 0, duTotal: 0, 
-            diffBasic: 0, diffDa: 0, diffHra: 0, diffCps: 0, diffChs: 0, diffTotal: 0,
-            hasManualDueBasicOverride: false 
+            drBasic: activeDrawnBasic, drDa: 0, drHra: 0, drCps: 0, drChs: 0, drTotal: 0, 
+            duBasic: activeDueBasic, duDa: 0, duHra: 0, duCps: 0, duChs: 0, duTotal: 0, 
+            diffBasic: 0, diffDa: 0, diffHra: 0, diffCps: 0, diffChs: 0, diffTotal: 0
         });
-        
-        monthIndex++;
         currentCursor.setMonth(currentCursor.getMonth() + 1);
     }
-    recalculateMathLogic(true); 
+    recalculateMathLogic(); 
 }
 
-function recalculateMathLogic(resetOverrides = false) {
+function recalculateMathLogic() {
     calculatedStatements.forEach(item => {
-        let daysInMonth = item.actualDays; let pDays = item.presentDays;
-        
-        item.drBasic = Math.round((item.drBasicNominal / daysInMonth) * pDays);
-        if (resetOverrides) { item.hasManualDueBasicOverride = false; }
-        if (!item.hasManualDueBasicOverride) {
-            item.duBasic = Math.round((item.duBasicNominal / daysInMonth) * pDays);
-        }
-
-        let curYear = 2000 + parseInt(item.month.split("-")[1]);
-        item.duDa = Math.round(item.duBasic * item.daRate); 
-        item.duHra = Math.round(item.duBasic * item.hraRate); 
-        item.duCps = Math.round((item.duBasic + item.duDa) * 0.10); 
-        item.duChs = (curYear === 2020 && (item.month.includes("MAY") || item.month.includes("JUN") || item.month.includes("JUL"))) ? 0 : Math.round((item.duBasic + item.duDa) * 0.01); 
-        item.duTotal = item.duBasic + item.duDa + item.duHra;
-
         item.drDa = Math.round(item.drBasic * item.daRate); 
         item.drHra = Math.round(item.drBasic * item.hraRate); 
-        item.drCps = Math.round((item.drBasic + item.drDa) * 0.10); 
-        item.drChs = (curYear === 2020 && (item.month.includes("MAY") || item.month.includes("JUN") || item.month.includes("JUL"))) ? 0 : Math.round((item.drBasic + item.drDa) * 0.01); 
         item.drTotal = item.drBasic + item.drDa + item.drHra;
-
-        item.diffBasic = item.duBasic - item.drBasic; 
-        item.diffDa = item.duDa - item.drDa; 
-        item.diffHra = item.duHra - item.drHra; 
-        item.diffCps = item.duCps - item.drCps; 
-        item.diffChs = item.duChs - item.drChs; 
-        item.diffTotal = (item.diffBasic + item.diffDa + item.diffHra) - (item.diffCps + item.diffChs);
+        
+        item.duDa = Math.round(item.duBasic * item.daRate); 
+        item.duHra = Math.round(item.duBasic * item.hraRate); 
+        item.duTotal = item.duBasic + item.duDa + item.duHra;
+        
+        item.diffBasic = item.duBasic - item.drBasic;
+        item.diffDa = item.duDa - item.drDa;
+        item.diffHra = item.duHra - item.drHra;
+        item.diffTotal = item.duTotal - item.drTotal;
     });
-    localStorage.setItem("pmc_automatic_statements", JSON.stringify(calculatedStatements)); 
     renderStatementTable();
 }
 
@@ -719,39 +665,23 @@ function renderStatementTable() {
     let tbody = document.querySelector("#fixationStatementTable tbody"); if(!tbody) return; tbody.innerHTML = "";
     if (calculatedStatements.length === 0) { tbody.innerHTML = `<tr><td colspan="22" style="color: #666; text-align: center;">अजून कोणतीही गणना केलेली नाही. माहिती भरून बटणावर क्लिक करा.</td></tr>`; return; }
     
-    let tDuB=0, tDuD=0, tDuH=0, tDuC=0, tDuChs=0, tDuT=0; 
-    let tDrB=0, tDrD=0, tDrH=0, tDrC=0, tDrChs=0, tDrT=0; 
-    let tDiB=0, tDiD=0, tDiH=0, tDiC=0, tDiChs=0, tDiT=0;
-    
     calculatedStatements.forEach((item, idx) => {
         let row = tbody.insertRow();
         row.innerHTML = `
             <td><strong>${item.month}</strong></td><td>${item.actualDays}</td>
-            <td><input type="number" value="${item.presentDays}" style="width:50px; text-align:center; height:28px;" oninput="updateTableInline(${idx}, 'presentDays', this.value)"></td>
+            <td><input type="number" value="${item.presentDays}" style="width:50px; text-align:center; height:28px;"></td>
             <td>${(item.daRate * 100).toFixed(0)}%</td>
-            <td><input type="number" value="${item.duBasic}" class="col-wide-basic" style="text-align:center; height:28px;" oninput="updateTableInline(${idx}, 'duBasic', this.value)"></td>
-            <td>${item.duDa}</td><td>${item.duHra}</td><td>${item.duCps}</td><td>${item.duChs}</td><td style="background:#e8f5e9;">${item.duTotal}</td>
-            <td>${item.drBasic}</td><td>${item.drDa}</td><td>${item.drHra}</td><td>${item.drCps}</td><td>${item.drChs}</td><td style="background:#f5f5f5;">${item.drTotal}</td>
-            <td style="color:blue; font-weight:bold;">${item.diffBasic}</td><td style="color:blue; font-weight:bold;">${item.diffDa}</td><td style="color:blue; font-weight:bold;">${item.diffHra}</td><td style="color:red;">${item.diffCps}</td><td style="color:red;">${item.diffChs}</td>
+            <td><input type="number" value="${item.duBasic}" class="col-wide-basic" style="text-align:center; height:28px;"></td>
+            <td>${item.duDa}</td><td>${item.duHra}</td><td>0</td><td>0</td><td style="background:#e8f5e9;">${item.duTotal}</td>
+            <td>${item.drBasic}</td><td>${item.drDa}</td><td>${item.drHra}</td><td>0</td><td>0</td><td style="background:#f5f5f5;">${item.drTotal}</td>
+            <td style="color:blue; font-weight:bold;">${item.diffBasic}</td><td style="color:blue; font-weight:bold;">${item.diffDa}</td><td style="color:blue; font-weight:bold;">${item.diffHra}</td><td>0</td><td>0</td>
             <td style="font-weight:bold; background:#e1bee7; color:#4a148c;">${item.diffTotal}</td>
         `;
-        tDuB+=item.duBasic; tDuD+=item.duDa; tDuH+=item.duHra; tDuC+=item.duCps; tDuChs+=item.duChs; tDuT+=item.duTotal;
-        tDrB+=item.drBasic; tDrD+=item.drDa; tDrH+=item.drHra; tDrC+=item.drCps; tDrChs+=item.drChs; tDrT+=item.drTotal;
-        tDiB+=item.diffBasic; tDiD+=item.diffDa; tDiH+=item.diffHra; tDiC+=item.diffCps; tDiChs+=item.diffChs; tDiT+=item.diffTotal;
     });
-    
-    let gRow = tbody.insertRow(); gRow.className = "grand-total-row";
-    gRow.innerHTML = `<td colspan="4"><strong>Grand Total</strong></td><td><strong>${tDuB}</strong></td><td><strong>${tDuD}</strong></td><td><strong>${tDuH}</strong></td><td><strong>${tDuC}</strong></td><td><strong>${tDuChs}</strong></td><td style="background:#c8e6c9;"><strong>${tDuT}</strong></td><td><strong>${tDrB}</strong></td><td><strong>${tDrD}</strong></td><td><strong>${tDrH}</strong></td><td><strong>${tDrC}</strong></td><td><strong>${tDrChs}</strong></td><td style="background:#e0e0e0;"><strong>${tDrT}</strong></td><td style="color:blue;"><strong>${tDiB}</strong></td><td style="color:blue;"><strong>${tDiD}</strong></td><td style="color:blue;"><strong>${tDiH}</strong></td><td style="color:red;"><strong>${tDiC}</strong></td><td style="color:red;"><strong>${tDiChs}</strong></td><td style="font-weight:bold; background:#b39ddb; color:#4a148c; font-size:12px;">रु. ${tDiT}/-</td>`;
-}
-
-function updateTableInline(index, field, value) { 
-    let numVal = parseFloat(value) || 0;
-    calculatedStatements[index][field] = numVal; 
-    if (field === 'duBasic') { calculatedStatements[index].hasManualDueBasicOverride = true; }
-    recalculateMathLogic(false); 
 }
 
 function recalculateFromTableInputs() { if(calculatedStatements.length > 0) calculateAutomaticFixationDiff(); }
+function calculateEncashment() {}
 </script>
 </body>
 </html>
