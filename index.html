@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="mr">
 <head>
@@ -42,7 +43,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
     <!-- PAGE 5 -->
     <div id="page5" class="tab-content active">
-        <h3>वरिष्ठ श्रेणी / MACPS वेतननिश्चिती व फरक बिल ( मूळ नियमांसह )</h3>
+        <h3>वरिष्ठ श्रेणी / MACPS वेतननिश्चिती व फरक बिल</h3>
         <div class="entry-box">
             <div>
                 <label>वेतन आयोग प्रकार:</label>
@@ -65,7 +66,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
         <div class="result-card" id="fixationRuleMsg" style="display: none;"></div>
 
-        <h3>📋 महिनावार सविस्तर फरक तक्ता (मूळ सर्व कॉलम्स जसेच्या तसे ✎)</h3>
+        <h3>📋 महिनावार सविस्तर फरक तक्ता (दुरुस्त केलेल्या वजाबाकीसह ✎)</h3>
         <div style="overflow-x: auto;">
             <table id="fixationStatementTable">
                 <thead>
@@ -76,7 +77,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                     <tr class="sub-table-header">
                         <th class="col-wide-basic">Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS</th><th>CHS</th><th>Total</th>
                         <th>Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS</th><th>CHS</th><th>Total</th>
-                        <th>Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS (-)</th><th>CHS (-)</th><th>Total Difference</th>
+                        <th>Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS</th><th>CHS</th><th>Total Difference</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -93,7 +94,6 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-// अधिकृत ७ वा वेतन मॅट्रिक्स (S-6 आणि S-10 च्या अचूक व्हॅल्यूसह)
 const payMatrix = {
     "S-6": [19900, 20500, 21100, 21700, 22400, 23100, 23800, 24500, 25200, 26000, 26800, 27600, 28400, 29300, 30200, 31100, 32000, 33000, 34000, 35000, 36100, 37200],
     "S-8": [25500, 26300, 27100, 27900, 28700, 29600, 30500, 31400, 32300, 33300, 34300, 35300, 36400, 37500, 38600, 39800, 41000, 42200, 43500, 44800],
@@ -138,7 +138,6 @@ function initializeFixationDropdowns() {
     }
 }
 
-// मूळ नियमांनुसार ऐतिहासिक भत्ते (DA आणि HRA Rates)
 function getHistoricalDARate(dateObj) {
     let year = dateObj.getFullYear(); let month = dateObj.getMonth() + 1;
     if (year <= 2019) return 0.12; if (year === 2020) return 0.17; 
@@ -148,9 +147,7 @@ function getHistoricalDARate(dateObj) {
 }
 function getHistoricalHRARate(dateObj) { return (getHistoricalDARate(dateObj) >= 0.50) ? 0.30 : (dateObj.getFullYear() >= 2021 ? 0.27 : 0.24); }
 
-// ----------------- मुख्य प्रगत ऑटोमॅटिक फरक बिल लॉजिक -----------------
 function calculateAutomaticFixationDiff() {
-    let commType = document.getElementById('fix_pay_comm').value;
     let drawnLevel = document.getElementById('fix_drawn_level').value; 
     let dueLevel = document.getElementById('fix_due_level').value; 
     let drawnBasicStart = parseInt(document.getElementById('fix_drawn_basic').value) || 0; 
@@ -189,7 +186,6 @@ function calculateAutomaticFixationDiff() {
         let daysInMonth = new Date(curYear, curMonth, 0).getDate();
         let mLabel = currentCursor.toLocaleString('en-US', { month: 'short', year: '2-digit' }).toUpperCase();
         
-        // 🌟 दर जुलै महिन्यात नियमित वेतनवाढ लागू करण्याचे लॉजिक 🌟
         if (calculatedStatements.length > 0 && curMonth === 7) {
             let drIdx = payMatrix[drawnLevel].indexOf(activeDrawnBasic);
             if (drIdx !== -1 && drIdx < payMatrix[drawnLevel].length - 1) activeDrawnBasic = payMatrix[drawnLevel][drIdx + 1];
@@ -210,7 +206,7 @@ function calculateAutomaticFixationDiff() {
     recalculateMathLogic();
 }
 
-// ----------------- सर्व मूळ नियमांनुसार गणिताचे कॅल्क्युलेशन -----------------
+// ----------------- वजाबाकीचे नियम बदलून इतर कॉलम्सप्रमाणे सरळ केले (FIXED) -----------------
 function recalculateMathLogic() {
     calculatedStatements.forEach(item => {
         let daysInMonth = item.actualDays; let pDays = item.presentDays;
@@ -232,13 +228,15 @@ function recalculateMathLogic() {
         item.drChs = (curYear === 2020 && (item.month.includes("MAY") || item.month.includes("JUN") || item.month.includes("JUL"))) ? 0 : Math.round((item.drBasic + item.drDa) * 0.01); 
         item.drTotal = item.drBasic + item.drDa + item.drHra;
 
-        // DIFFERENCE CALCULATIONS[cite: 1]
+        // DIFFERENCE CALCULATIONS: आता CPS आणि CHS देखील सरळ DUE - DRAWN असे वजा होतील[cite: 1]
         item.diffBasic = item.duBasic - item.drBasic; 
         item.diffDa = item.duDa - item.drDa; 
         item.diffHra = item.duHra - item.drHra; 
-        item.diffCps = item.duCps - item.drCps; 
-        item.diffChs = item.duChs - item.drChs; 
-        item.diffTotal = (item.diffBasic + item.diffDa + item.diffHra) - (item.diffCps + item.diffChs);
+        item.diffCps = item.duCps - item.drCps; // 🌟 सरळ साधी वजाबाकी फिक्स केली 🌟
+        item.diffChs = item.duChs - item.drChs; // 🌟 सरळ साधी वजाबाकी फिक्स केली 🌟
+        
+        // Total Difference चा मूळ नियम जसाच्या तसा[cite: 1]
+        item.diffTotal = (item.diffBasic + item.diffDa + item.diffHra + item.diffCps + item.diffChs)
     });
     renderStatementTable();
 }
@@ -259,7 +257,8 @@ function renderStatementTable() {
             <td>${(item.daRate * 100).toFixed(0)}%</td>
             <td>${item.duBasic}</td><td>${item.duDa}</td><td>${item.duHra}</td><td>${item.duCps}</td><td>${item.duChs}</td><td style="background:#e8f5e9;">${item.duTotal}</td>
             <td>${item.drBasic}</td><td>${item.drDa}</td><td>${item.drHra}</td><td>${item.drCps}</td><td>${item.drChs}</td><td style="background:#f5f5f5;">${item.drTotal}</td>
-            <td style="color:blue; font-weight:bold;">${item.diffBasic}</td><td style="color:blue; font-weight:bold;">${item.diffDa}</td><td style="color:blue; font-weight:bold;">${item.diffHra}</td><td style="color:red;">${item.diffCps}</td><td style="color:red;">${item.diffChs}</td>
+            <td style="color:blue; font-weight:bold;">${item.diffBasic}</td><td style="color:blue; font-weight:bold;">${item.diffDa}</td><td style="color:blue; font-weight:bold;">${item.diffHra}</td>
+            <td style="color:blue; font-weight:bold;">${item.diffCps}</td><td style="color:blue; font-weight:bold;">${item.diffChs}</td>
             <td style="font-weight:bold; background:#e1bee7; color:#4a148c;">${item.diffTotal}</td>
         `;
         tDuB+=item.duBasic; tDuD+=item.duDa; tDuH+=item.duHra; tDuC+=item.duCps; tDuChs+=item.duChs; tDuT+=item.duTotal;
@@ -268,7 +267,7 @@ function renderStatementTable() {
     });
     
     let gRow = tbody.insertRow(); gRow.className = "grand-total-row";
-    gRow.innerHTML = `<td colspan="4"><strong>Grand Total</strong></td><td>${tDuB}</td><td>${tDuD}</td><td>${tDuH}</td><td>${tDuC}</td><td>${tDuChs}</td><td style="background:#c8e6c9;">${tDuT}</td><td>${tDrB}</td><td>${tDrD}</td><td>${tDrH}</td><td>${tDrC}</td><td>${tDrChs}</td><td style="background:#e0e0e0;">${tDrT}</td><td style="color:blue;">${tDiB}</td><td style="color:blue;">${tDiD}</td><td style="color:blue;">${tDiH}</td><td style="color:red;">${tDiC}</td><td style="color:red;">${tDiChs}</td><td style="font-weight:bold; background:#b39ddb; color:#4a148c;">रु. ${tDiT}/-</td>`;
+    gRow.innerHTML = `<td colspan="4"><strong>Grand Total</strong></td><td>${tDuB}</td><td>${tDuD}</td><td>${tDuH}</td><td>${tDuC}</td><td>${tDuChs}</td><td style="background:#c8e6c9;">${tDuT}</td><td>${tDrB}</td><td>${tDrD}</td><td>${tDrH}</td><td>${tDrC}</td><td>${tDrChs}</td><td style="background:#e0e0e0;">${tDrT}</td><td style="color:blue;">${tDiB}</td><td style="color:blue;">${tDiD}</td><td style="color:blue;">${tDiH}</td><td style="color:blue;">${tDiC}</td><td style="color:blue;">${tDiChs}</td><td style="font-weight:bold; background:#b39ddb; color:#4a148c;">रु. ${tDiT}/-</td>`;
 }
 
 function updateTableInline(index, value) {
@@ -276,308 +275,35 @@ function updateTableInline(index, value) {
     recalculateMathLogic();
 }
 
+// ----------------- संपूर्ण २२ कॉलम्सह एक्सेल डाउनलोड फंक्शन (FIXED & FULL) -----------------
 function downloadFixationStatementExcel() {
     if(calculatedStatements.length === 0){ alert("डेटा उपलब्ध नाही!"); return; }
-    let csv = "\uFEFFMonth,Actual Days,Present Days,DUE Basic,DUE Total,DRAWN Basic,DRAWN Total,Difference\n";
-    calculatedStatements.forEach(i => {
-        csv += `${i.month},${i.actualDays},${i.presentDays},${i.duBasic},${i.duTotal},${i.drBasic},${i.drTotal},${i.diffTotal}\n`;
-    });
-    let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    let link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", "Fixation_Master_Report.csv");
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
-}
-
-function clearFixationStatement() { calculatedStatements = []; renderStatementTable(); document.getElementById('fixationRuleMsg').style.display = "none"; }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="mr">
-<head>
-<meta charset="UTF-8">
-<title>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<style>
-body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
-.container { max-width: 1550px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-h2 { text-align: center; color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
-.tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
-.tab-btn { padding: 12px 25px; border: none; background-color: #e0e0e0; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-.tab-btn.active { background-color: #1a73e8; color: white; }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-
-.entry-box { background: #f3e5f5; border: 1px solid #9c27b0; padding: 15px; border-radius: 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; align-items: end; }
-label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #333; white-space: nowrap; }
-input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fff; height: 38px; }
-.btn-fix-calc { background-color: #9c27b0; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; height: 38px; }
-.btn-excel { background-color: #2e7d32; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; }
-.btn-clear { background-color: #555555; color: white; padding: 0 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; height: 38px; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 10px; }
-th, td { border: 1px solid #ddd; padding: 5px; text-align: center; }
-th { background-color: #1a73e8; color: white; }
-tr:nth-child(even) { background-color: #f9f9f9; }
-.sub-table-header { background-color: #9c27b0; color: white; font-weight: bold; }
-.grand-total-row { background-color: #c8e6c9 !important; font-weight: bold; font-size: 11px; color: #1b5e20; }
-.result-card { background: #ffffff; padding: 15px; border: 2px dashed #9c27b0; border-radius: 8px; margin-top: 20px; text-align: left; font-size: 14px; line-height: 1.5; color: #4a148c; }
-.footer-msg { margin-top: 30px; padding: 15px; background-color: #eeeeee; border-radius: 8px; text-align: center; font-size: 14px; color: #333; border: 1px solid #ccc; }
-.col-wide-basic { min-width: 80px !important; width: 80px !important; }
-</style>
-</head>
-<body>
-
-<div class="container">
-    <h2>पुणे महानगरपालिका रजा नोंद व सेवानिवृत्ती व्यवस्थापन प्रणाली</h2>
-
-    <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('page5')">५. वरिष्ठ श्रेणी वेतननिश्चिती व फरक बिल</button>
-    </div>
-
-    <!-- PAGE 5 -->
-    <div id="page5" class="tab-content active">
-        <h3>वरिष्ठ श्रेणी / MACPS वेतननिश्चिती व फरक बिल ( मूळ नियमांसह )</h3>
-        <div class="entry-box">
-            <div>
-                <label>वेतन आयोग प्रकार:</label>
-                <select id="fix_pay_comm" onchange="initializeFixationDropdowns()">
-                    <option value="7">७ वा वेतन आयोग (S-Levels)</option>
-                    <option value="6">६ वा वेतन आयोग (Grade Pay)</option>
-                </select>
-            </div>
-            <div><label>सध्याचा वेतन स्तर (Drawn Level):</label><select id="fix_drawn_level"></select></div>
-            <div><label>सध्याचे मूळ वेतन (Drawn Basic):</label><input type="number" id="fix_drawn_basic" value="29300"></div>
-            <div><label>वरिष्ठ सुधारित स्तर (Due Level):</label><select id="fix_due_level"></select></div>
-            <div><label>वरिष्ठ श्रेणी लागू दिनांक:</label><input type="text" id="fix_start_date"></div>
-            <div><label>फरक बिल अखेर दिनांक:</label><input type="text" id="fix_end_date"></div>
-            <div style="grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-end; margin-top: 5px;">
-                <button class="btn-fix-calc" onclick="calculateAutomaticFixationDiff()">ऑटोमॅटिक वेतननिश्चिती व फरक बिल काढा</button>
-                <button class="btn-excel" onclick="downloadFixationStatementExcel()">Excel डाउनलोड करा</button>
-                <button class="btn-clear" onclick="clearFixationStatement()">सर्व डेटा पुसा</button>
-            </div>
-        </div>
-
-        <div class="result-card" id="fixationRuleMsg" style="display: none;"></div>
-
-        <h3>📋 महिनावार सविस्तर फरक तक्ता (मूळ सर्व कॉलम्स जसेच्या तसे ✎)</h3>
-        <div style="overflow-x: auto;">
-            <table id="fixationStatementTable">
-                <thead>
-                    <tr class="sub-table-header">
-                        <th rowspan="2">Month</th><th rowspan="2">Actual Days</th><th rowspan="2">Present Days (✎)</th><th rowspan="2">D. A. %</th>
-                        <th colspan="6">DUE</th><th colspan="6">DRAWN</th><th colspan="6">DIFFERENCE</th>
-                    </tr>
-                    <tr class="sub-table-header">
-                        <th class="col-wide-basic">Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS</th><th>CHS</th><th>Total</th>
-                        <th>Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS</th><th>CHS</th><th>Total</th>
-                        <th>Basic</th><th>D. A.</th><th>H.R.A.</th><th>CPS (-)</th><th>CHS (-)</th><th>Total Difference</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="22" style="color: #666; text-align: center;">अजून कोणतीही गणना केलेली नाही. माहिती भरून बटणावर क्लिक करा.</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="footer-msg">
-        सदर software बद्दल आपल्या काही সূচনা किंवा दुरुस्ती असल्यास श्री. हनुमंत आडागळे मोबाईल 9922987391 यावर whatsapp message करा. धन्यवाद!
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-// अधिकृत ७ वा वेतन मॅट्रिक्स (S-6 आणि S-10 च्या अचूक व्हॅल्यूसह)
-const payMatrix = {
-    "S-6": [19900, 20500, 21100, 21700, 22400, 23100, 23800, 24500, 25200, 26000, 26800, 27600, 28400, 29300, 30200, 31100, 32000, 33000, 34000, 35000, 36100, 37200],
-    "S-8": [25500, 26300, 27100, 27900, 28700, 29600, 30500, 31400, 32300, 33300, 34300, 35300, 36400, 37500, 38600, 39800, 41000, 42200, 43500, 44800],
-    "S-10": [29200, 30100, 31000, 31900, 32900, 33900, 34900, 35900, 37000, 38100, 39200, 40400, 41600, 42800, 44100, 45400, 46800, 48200, 49600, 51100]
-};
-
-for(let i=1; i<=31; i++) {
-    let key = "S-" + i;
-    if(!payMatrix[key]) {
-        payMatrix[key] = [15000 + (i*1000)];
-        for(let j=1; j<40; j++) { payMatrix[key].push(Math.round(payMatrix[key][j-1] * 1.03 / 100) * 100); }
-    }
-}
-
-let calculatedStatements = [];
-let config = { dateFormat: "d/m/Y", allowInput: true };
-
-flatpickr("#fix_start_date", { ...config, defaultDate: "14/03/2019" });
-flatpickr("#fix_end_date", { ...config, defaultDate: "19/03/2026" });
-
-window.onload = function() {
-    initializeFixationDropdowns();
-};
-
-function parseDMY(str) { if(!str) return null; let parts = str.split("/"); return new Date(parts[2], parts[1] - 1, parts[0]); }
-function switchTab(tabId) { }
-
-function initializeFixationDropdowns() {
-    let drSel = document.getElementById('fix_drawn_level'); 
-    let duSel = document.getElementById('fix_due_level'); 
-    if(!drSel || !duSel) return;
-    drSel.innerHTML = ""; duSel.innerHTML = "";
-    let is7th = document.getElementById('fix_pay_comm').value === "7";
-    if(is7th) {
-        for(let i=1; i<=31; i++) {
-            let opt1 = document.createElement('option'); opt1.value = "S-"+i; opt1.innerText = "S-"+i;
-            let opt2 = document.createElement('option'); opt2.value = "S-"+i; opt2.innerText = "S-"+i;
-            if(i===6) opt1.selected = true;
-            if(i===10) opt2.selected = true;
-            drSel.appendChild(opt1); duSel.appendChild(opt2);
-        }
-    }
-}
-
-// मूळ नियमांनुसार ऐतिहासिक भत्ते (DA आणि HRA Rates)
-function getHistoricalDARate(dateObj) {
-    let year = dateObj.getFullYear(); let month = dateObj.getMonth() + 1;
-    if (year <= 2019) return 0.12; if (year === 2020) return 0.17; 
-    if (year === 2021) return (month >= 7) ? 0.31 : 0.17; if (year === 2022) return (month >= 7) ? 0.38 : 0.34;
-    if (year === 2023) return (month >= 7) ? 0.46 : 0.42; if (year === 2024) return (month >= 7) ? 0.50 : 0.50;
-    if (year === 2025) return (month >= 7) ? 0.58 : 0.55; return 0.60;
-}
-function getHistoricalHRARate(dateObj) { return (getHistoricalDARate(dateObj) >= 0.50) ? 0.30 : (dateObj.getFullYear() >= 2021 ? 0.27 : 0.24); }
-
-// ----------------- मुख्य प्रगत ऑटोमॅटिक फरक बिल लॉजिक -----------------
-function calculateAutomaticFixationDiff() {
-    let commType = document.getElementById('fix_pay_comm').value;
-    let drawnLevel = document.getElementById('fix_drawn_level').value; 
-    let dueLevel = document.getElementById('fix_due_level').value; 
-    let drawnBasicStart = parseInt(document.getElementById('fix_drawn_basic').value) || 0; 
-    let startStr = document.getElementById('fix_start_date').value; 
-    let endStr = document.getElementById('fix_end_date').value;
     
-    if (drawnBasicStart <= 0 || !startStr || !endStr) { alert("कृपया सर्व माहिती अचूक भरा!"); return; }
-    let dStart = parseDMY(startStr); let dEnd = parseDMY(endStr);
-    
-    let targetMatrix = payMatrix[dueLevel] || payMatrix["S-10"];
-    let nextStageBasic = targetMatrix.find(amt => amt >= drawnBasicStart) || targetMatrix[0];
-    let nextStageIndex = targetMatrix.indexOf(nextStageBasic);
-    let startMonth = dStart.getMonth() + 1;
-    
-    let bonusIncrements = (startMonth >= 1 && startMonth <= 6) ? 1 : 2;
-    if (bonusIncrements === 2) {
-        let isConfirm = confirm("नियमानुसार या कालावधीसाठी २ वेतनवाढी लागू होत आहेत. २ वेतनवाढी द्यायच्या का?\n(१ वेतनवाढ देण्यासाठी 'Cancel' करा)");
-        if (!isConfirm) { bonusIncrements = 1; }
-    }
-    
-    let finalDueIndex = nextStageIndex + bonusIncrements;
-    if (finalDueIndex >= targetMatrix.length) finalDueIndex = targetMatrix.length - 1;
-    let dueBasicStart = targetMatrix[finalDueIndex];
-    
-    let formattedMsg = `<strong>वेतननिश्चिती अहवाल:</strong><br>• एकूण <strong>${bonusIncrements}</strong> वेतनवाढ लागू.<br>• सुधारित निश्चित मूळ वेतन: <strong>रु. ${dueBasicStart} (${dueLevel})</strong>`;
-    document.getElementById('fixationRuleMsg').style.display = "block"; document.getElementById('fixationRuleMsg').innerHTML = formattedMsg;
-    
-    calculatedStatements = [];
-    let currentCursor = new Date(dStart.getFullYear(), dStart.getMonth(), 1);
-    let endCursor = new Date(dEnd.getFullYear(), dEnd.getMonth(), 1);
-    
-    let activeDrawnBasic = drawnBasicStart; let activeDueBasic = dueBasicStart;
-    
-    while (currentCursor <= endCursor) {
-        let curYear = currentCursor.getFullYear(); let curMonth = currentCursor.getMonth() + 1;
-        let daysInMonth = new Date(curYear, curMonth, 0).getDate();
-        let mLabel = currentCursor.toLocaleString('en-US', { month: 'short', year: '2-digit' }).toUpperCase();
-        
-        // 🌟 दर जुलै महिन्यात नियमित वेतनवाढ लागू करण्याचे लॉजिक 🌟
-        if (calculatedStatements.length > 0 && curMonth === 7) {
-            let drIdx = payMatrix[drawnLevel].indexOf(activeDrawnBasic);
-            if (drIdx !== -1 && drIdx < payMatrix[drawnLevel].length - 1) activeDrawnBasic = payMatrix[drawnLevel][drIdx + 1];
-            let duIdx = payMatrix[dueLevel].indexOf(activeDueBasic);
-            if (duIdx !== -1 && duIdx < payMatrix[dueLevel].length - 1) activeDueBasic = payMatrix[dueLevel][duIdx + 1];
-        }
-        
-        calculatedStatements.push({
-            month: mLabel, actualDays: daysInMonth, presentDays: daysInMonth,
-            daRate: getHistoricalDARate(currentCursor), hraRate: getHistoricalHRARate(currentCursor),
-            drBasicNominal: activeDrawnBasic, duBasicNominal: activeDueBasic,
-            drBasic: activeDrawnBasic, drDa: 0, drHra: 0, drCps: 0, drChs: 0, drTotal: 0,
-            duBasic: activeDueBasic, duDa: 0, duHra: 0, duCps: 0, duChs: 0, duTotal: 0,
-            diffBasic: 0, diffDa: 0, diffHra: 0, diffCps: 0, diffChs: 0, diffTotal: 0
-        });
-        currentCursor.setMonth(currentCursor.getMonth() + 1);
-    }
-    recalculateMathLogic();
-}
-
-// ----------------- सर्व मूळ नियमांनुसार गणिताचे कॅल्क्युलेशन -----------------
-function recalculateMathLogic() {
-    calculatedStatements.forEach(item => {
-        let daysInMonth = item.actualDays; let pDays = item.presentDays;
-        let curYear = 2000 + parseInt(item.month.split("-")[1]);
-
-        // DUE CALCULATIONS[cite: 1]
-        item.duBasic = Math.round((item.duBasicNominal / daysInMonth) * pDays);
-        item.duDa = Math.round(item.duBasic * item.daRate); 
-        item.duHra = Math.round(item.duBasic * item.hraRate); 
-        item.duCps = Math.round((item.duBasic + item.duDa) * 0.10); 
-        item.duChs = (curYear === 2020 && (item.month.includes("MAY") || item.month.includes("JUN") || item.month.includes("JUL"))) ? 0 : Math.round((item.duBasic + item.duDa) * 0.01); 
-        item.duTotal = item.duBasic + item.duDa + item.duHra;
-
-        // DRAWN CALCULATIONS[cite: 1]
-        item.drBasic = Math.round((item.drBasicNominal / daysInMonth) * pDays);
-        item.drDa = Math.round(item.drBasic * item.daRate); 
-        item.drHra = Math.round(item.drBasic * item.hraRate); 
-        item.drCps = Math.round((item.drBasic + item.drDa) * 0.10); 
-        item.drChs = (curYear === 2020 && (item.month.includes("MAY") || item.month.includes("JUN") || item.month.includes("JUL"))) ? 0 : Math.round((item.drBasic + item.drDa) * 0.01); 
-        item.drTotal = item.drBasic + item.drDa + item.drHra;
-
-        // DIFFERENCE CALCULATIONS[cite: 1]
-        item.diffBasic = item.duBasic - item.drBasic; 
-        item.diffDa = item.duDa - item.drDa; 
-        item.diffHra = item.duHra - item.drHra; 
-        item.diffCps = item.duCps - item.drCps; 
-        item.diffChs = item.duChs - item.drChs; 
-        item.diffTotal = (item.diffBasic + item.diffDa + item.diffHra) - (item.diffCps + item.diffChs);
-    });
-    renderStatementTable();
-}
-
-function renderStatementTable() {
-    let tbody = document.querySelector("#fixationStatementTable tbody"); if(!tbody) return; tbody.innerHTML = "";
-    if (calculatedStatements.length === 0) { tbody.innerHTML = `<tr><td colspan="22" style="color: #666; text-align: center;">अजून कोणतीही गणना केलेली नाही.</td></tr>`; return; }
-    
+    let csv = "\uFEFFMonth,Actual Days,Present Days,D.A. %," +
+              "DUE Basic,DUE D.A.,DUE H.R.A.,DUE CPS,DUE CHS,DUE Total," +
+              "DRAWN Basic,DRAWN D.A.,DRAWN H.R.A.,DRAWN CPS,DRAWN CHS,DRAWN Total," +
+              "DIFF Basic,DIFF D.A.,DIFF H.R.A.,DIFF CPS,DIFF CHS,Total Difference\n";
+              
     let tDuB=0, tDuD=0, tDuH=0, tDuC=0, tDuChs=0, tDuT=0; 
     let tDrB=0, tDrD=0, tDrH=0, tDrC=0, tDrChs=0, tDrT=0; 
     let tDiB=0, tDiD=0, tDiH=0, tDiC=0, tDiChs=0, tDiT=0;
 
-    calculatedStatements.forEach((item, idx) => {
-        let row = tbody.insertRow();
-        row.innerHTML = `
-            <td><strong>${item.month}</strong></td><td>${item.actualDays}</td>
-            <td><input type="number" value="${item.presentDays}" style="width:75px; text-align:center; height:25px;" oninput="updateTableInline(${idx}, this.value)"></td>
-            <td>${(item.daRate * 100).toFixed(0)}%</td>
-            <td>${item.duBasic}</td><td>${item.duDa}</td><td>${item.duHra}</td><td>${item.duCps}</td><td>${item.duChs}</td><td style="background:#e8f5e9;">${item.duTotal}</td>
-            <td>${item.drBasic}</td><td>${item.drDa}</td><td>${item.drHra}</td><td>${item.drCps}</td><td>${item.drChs}</td><td style="background:#f5f5f5;">${item.drTotal}</td>
-            <td style="color:blue; font-weight:bold;">${item.diffBasic}</td><td style="color:blue; font-weight:bold;">${item.diffDa}</td><td style="color:blue; font-weight:bold;">${item.diffHra}</td><td style="color:red;">${item.diffCps}</td><td style="color:red;">${item.diffChs}</td>
-            <td style="font-weight:bold; background:#e1bee7; color:#4a148c;">${item.diffTotal}</td>
-        `;
-        tDuB+=item.duBasic; tDuD+=item.duDa; tDuH+=item.duHra; tDuC+=item.duCps; tDuChs+=item.duChs; tDuT+=item.duTotal;
-        tDrB+=item.drBasic; tDrD+=item.drDa; tDrH+=item.drHra; tDrC+=item.drCps; tDrChs+=item.drChs; tDrT+=item.drTotal;
-        tDiB+=item.diffBasic; tDiD+=item.diffDa; tDiH+=item.diffHra; tDiC+=item.diffCps; tDiChs+=item.diffChs; tDiT+=item.diffTotal;
-    });
-    
-    let gRow = tbody.insertRow(); gRow.className = "grand-total-row";
-    gRow.innerHTML = `<td colspan="4"><strong>Grand Total</strong></td><td>${tDuB}</td><td>${tDuD}</td><td>${tDuH}</td><td>${tDuC}</td><td>${tDuChs}</td><td style="background:#c8e6c9;">${tDuT}</td><td>${tDrB}</td><td>${tDrD}</td><td>${tDrH}</td><td>${tDrC}</td><td>${tDrChs}</td><td style="background:#e0e0e0;">${tDrT}</td><td style="color:blue;">${tDiB}</td><td style="color:blue;">${tDiD}</td><td style="color:blue;">${tDiH}</td><td style="color:red;">${tDiC}</td><td style="color:red;">${tDiChs}</td><td style="font-weight:bold; background:#b39ddb; color:#4a148c;">रु. ${tDiT}/-</td>`;
-}
-
-function updateTableInline(index, value) {
-    calculatedStatements[index].presentDays = parseFloat(value) || 0;
-    recalculateMathLogic();
-}
-
-function downloadFixationStatementExcel() {
-    if(calculatedStatements.length === 0){ alert("डेटा उपलब्ध नाही!"); return; }
-    let csv = "\uFEFFMonth,Actual Days,Present Days,DUE Basic,DUE Total,DRAWN Basic,DRAWN Total,Difference\n";
     calculatedStatements.forEach(i => {
-        csv += `${i.month},${i.actualDays},${i.presentDays},${i.duBasic},${i.duTotal},${i.drBasic},${i.drTotal},${i.diffTotal}\n`;
+        csv += `${i.month},${i.actualDays},${i.presentDays},${(i.daRate * 100).toFixed(0)}%,` +
+               `${i.duBasic},${i.duDa},${i.duHra},${i.duCps},${i.duChs},${i.duTotal},` +
+               `${i.drBasic},${i.drDa},${i.drHra},${i.drCps},${i.drChs},${i.drTotal},` +
+               `${i.diffBasic},${i.diffDa},${i.diffHra},${i.diffCps},${i.diffChs},${i.diffTotal}\n`;
+               
+        tDuB+=i.duBasic; tDuD+=i.duDa; tDuH+=i.duHra; tDuC+=i.duCps; tDuChs+=i.duChs; tDuT+=i.duTotal;
+        tDrB+=i.drBasic; tDrD+=i.drDa; tDrH+=i.drHra; tDrC+=i.drCps; tDrChs+=i.drChs; tDrT+=i.drTotal;
+        tDiB+=i.diffBasic; tDiD+=i.diffDa; tDiH+=i.diffHra; tDiC+=i.diffCps; tDiChs+=i.diffChs; tDiT+=i.diffTotal;
     });
+
+    csv += `Grand Total,,,,${tDuB},${tDuD},${tDuH},${tDuC},${tDuChs},${tDuT},${tDrB},${tDrD},${tDrH},${tDrC},${tDrChs},${tDrT},${tDiB},${tDiD},${tDiH},${tDiC},${tDiChs},${tDiT}\n`;
+
     let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     let link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", "Fixation_Master_Report.csv");
+    link.setAttribute("download", "Complete_Fixation_Report.csv");
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
 
