@@ -105,6 +105,8 @@ h3.report-title { font-size: 15px; margin-top: 25px; margin-bottom: 8px; color: 
     <div class="btn-group" style="margin-left: auto;">
         <button class="btn-excel" onclick="exportComparativeExcel()">Excel डाउनलोड करा</button>
         <button class="btn-clear" onclick="clearAuditData()">सर्व डेटा पुसा</button>
+        <button class="btn-calc" style="background-color:#00695c;" onclick="downloadBackup()">💾 बॅकअप डाऊनलोड</button>
+<button class="btn-extra" style="background-color:#4527a0;" onclick="restoreBackup()">📂 बॅकअप रिस्टोअर</button>
     </div>
 </div>
 
@@ -964,6 +966,51 @@ function clearAuditData() {
         document.getElementById('global_closure_check').checked = false; document.getElementById('aud_emp_name').value = ""; document.getElementById('aud_emp_pf').value = ""; document.getElementById('aud_join_date').value = "01/01/1990";
         renderComparativeTable();
     }
+}
+    function downloadBackup() {
+    if (auditEntries.length === 0) { alert("बॅकअप घेण्यासाठी कोणताही डेटा उपलब्ध नाही!"); return; }
+    let backupData = {
+        entries: localStorage.getItem("pmc_audit_4tables_exact_v14"),
+        breaks: localStorage.getItem("pmc_audit_pagebreaks_v14"),
+        closure: localStorage.getItem("pmc_audit_closure_v14"),
+        empName: localStorage.getItem("pmc_aud_emp_name"),
+        empPf: localStorage.getItem("pmc_aud_emp_pf"),
+        joinDate: localStorage.getItem("pmc_aud_join_date")
+    };
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+    let downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "PMC_Audit_Backup_" + (backupData.empPf || "Data") + ".json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+function restoreBackup() {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+        let file = e.target.files[0];
+        let reader = new FileReader();
+        reader.readAsText(file, 'UTF-8');
+        reader.onload = readerEvent => {
+            try {
+                let content = JSON.parse(readerEvent.target.result);
+                if(content.entries) localStorage.setItem("pmc_audit_4tables_exact_v14", content.entries);
+                if(content.breaks) localStorage.setItem("pmc_audit_pagebreaks_v14", content.breaks);
+                if(content.closure) localStorage.setItem("pmc_audit_closure_v14", content.closure);
+                if(content.empName) localStorage.setItem("pmc_aud_emp_name", content.empName);
+                if(content.empPf) localStorage.setItem("pmc_aud_emp_pf", content.empPf);
+                if(content.joinDate) localStorage.setItem("pmc_aud_join_date", content.joinDate);
+                alert("डेटा यशस्वीरित्या रिस्टोअर झाला! पेज रिफ्रेश होत आहे...");
+                location.reload();
+            } catch(err) {
+                alert("चुकीची किंवा करप्ट बॅकअप फाईल!");
+            }
+        }
+    }
+    input.click();
 }
 </script>
 </body>
