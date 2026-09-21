@@ -5,41 +5,10 @@
 <title>पुणे महानगरपालिका - तुलनात्मक रजा हिशोब व पडताळणी ताळेबंद (Audit Comparison Register)</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
-body { 
-    font-family: 'Segoe UI', Arial, sans-serif; 
-    background-color: #eceff1; 
-    color: #212121; 
-    padding: 12px; 
-    margin: 0;
-}
-.container { 
-    max-width: 2750px; 
-    margin: auto; 
-    background: #ffffff; 
-    padding: 20px; 
-    border-radius: 8px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-}
-h2 { 
-    text-align: center; 
-    color: #0d47a1; 
-    border-bottom: 2px solid #0d47a1; 
-    padding-bottom: 8px; 
-    margin-top: 0;
-    margin-bottom: 15px; 
-    font-size: 22px; 
-}
-.setup-grid {
-    background: #f8f9fa;
-    padding: 15px;
-    border: 1px solid #cfd8dc;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    display: flex;
-    gap: 15px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-}
+body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #eceff1; color: #212121; padding: 12px; margin: 0; }
+.container { max-width: 2750px; margin: auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #0d47a1; border-bottom: 2px solid #0d47a1; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 22px; }
+.setup-grid { background: #f8f9fa; padding: 15px; border: 1px solid #cfd8dc; border-radius: 6px; margin-bottom: 15px; display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
 .setup-grid > div { flex: 1; min-width: 170px; }
 label { font-weight: bold; font-size: 12px; display: block; margin-bottom: 4px; color: #37474f; }
 input, select { width: 100%; padding: 6px 8px; border: 1px solid #b0bec5; border-radius: 4px; box-sizing: border-box; font-size: 12px; background-color: #ffffff; color: #212121; height: 36px; }
@@ -50,11 +19,12 @@ input:focus, select:focus { outline: 2px solid #1976d2; }
 .btn-pagebreak { background-color: #0288d1; color: #ffffff; padding: 0 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 36px; }
 .btn-excel { background-color: #2e7d32; color: #ffffff; padding: 0 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 36px; }
 .btn-clear { background-color: #546e7a; color: #ffffff; padding: 0 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 36px; }
-.closure-box { background: #ffebee; border: 1px solid #ef5350; padding: 6px 12px; border-radius: 4px; display: flex; align-items: center; gap: 8px; height: 36px; box-sizing: border-box; }
+.btn-backup { background-color: #00695c; color: #ffffff; padding: 0 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 36px; }
+.btn-restore { background-color: #4527a0; color: #ffffff; padding: 0 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 36px; }
 
+.closure-box { background: #ffebee; border: 1px solid #ef5350; padding: 6px 12px; border-radius: 4px; display: flex; align-items: center; gap: 8px; height: 36px; box-sizing: border-box; }
 table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10px; white-space: nowrap; }
 th, td { border: 1px solid #cfd8dc; padding: 4px 2px; text-align: center; }
-
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
 
@@ -64,7 +34,6 @@ input[type=number] { -moz-appearance: textfield; }
 .th-remark { background-color: #1b5e20 !important; color: #ffffff !important; }
 .th-report-sb { background-color: #e65100 !important; color: #ffffff !important; font-size: 11px; padding: 6px; }
 .th-report-due { background-color: #0d47a1 !important; color: #ffffff !important; font-size: 11px; padding: 6px; }
-
 .sub-header th { font-weight: bold; font-size: 9px; padding: 5px 1px; }
 tr:nth-child(even) { background-color: #fafafa; }
 .page-break-row { background-color: #0d47a1 !important; color: white; font-weight: bold; font-size: 11px; }
@@ -76,7 +45,6 @@ tr:nth-child(even) { background-color: #fafafa; }
 .diff-alert { font-weight: bold; color: #b71c1c; background: #ffebee; }
 .remark-cell { text-align: left !important; padding: 4px 6px !important; font-size: 9px; line-height: 1.3; }
 .btn-row-del { background: #d32f2f; color: #ffffff; border: none; padding: 3px 6px; cursor: pointer; font-size: 9px; border-radius: 3px; }
-
 h3.report-title { font-size: 15px; margin-top: 25px; margin-bottom: 8px; color: #000; font-weight: bold; }
 </style>
 </head>
@@ -103,10 +71,10 @@ h3.report-title { font-size: 15px; margin-top: 25px; margin-bottom: 8px; color: 
         <label for="global_closure_check" style="color:#c62828; margin:0; cursor:pointer; font-weight:bold;">🛑 सेवा समाप्ती / हिशोब बंद?</label>
     </div>
     <div class="btn-group" style="margin-left: auto;">
-        <button class="btn-excel" onclick="exportComparativeExcel()">Excel डाउनलोड करा</button>
-        <button class="btn-clear" onclick="clearAuditData()">सर्व डेटा पुसा</button>
-        <button class="btn-calc" style="background-color:#00695c;" onclick="downloadBackup()">💾 बॅकअप डाऊनलोड</button>
-<button class="btn-extra" style="background-color:#4527a0;" onclick="restoreBackup()">📂 बॅकअप रिस्टोअर</button>
+        <button class="btn-backup" onclick="downloadBackup()">💾 बॅकअप डाऊनलोड</button>
+        <button class="btn-restore" onclick="restoreBackup()">📂 बॅकअप रिस्टोअर</button>
+        <button class="btn-excel" onclick="exportComparativeExcel()">Excel डाउनलोड</button>
+        <button class="btn-clear" onclick="clearAuditData()">डेटा पुसा</button>
     </div>
 </div>
 
@@ -136,17 +104,10 @@ h3.report-title { font-size: 15px; margin-top: 25px; margin-bottom: 8px; color: 
 <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
     <button class="btn-calc" onclick="addNewAuditRow()">+ नवीन नोंद जोडा</button>
     <button class="btn-extra" onclick="addAnnualExtraLeavePrompt()">+ अतिरिक्त रजा जमा</button>
-    <button class="btn-pagebreak" onclick="addManualPageBreak()">🛑 पेज ब्रेक करा</button>
+    <button class="btn-pagebreak" onclick="addManualPageBreak()">🛑 पेज ब्रेक करा (शेवटच्या ओळीवर)</button>
 </div>
 
-<div style="margin-top: 15px; font-size: 11px; line-height: 1.5; background: #ffffff; border: 1px solid #cfd8dc; padding: 10px; border-radius: 4px;">
-    <strong>अद्ययावत हिशोब मार्गदर्शक:</strong><br>
-    • <strong>अचूक उणे (Negative) गणित:</strong> शिल्लक उणे गेली तरी सिस्टीम बेस-३० व बेस-११ च्या नियमानुसारच (उदा. 3.27 - 4.00 = -0.03) गणित करेल.<br>
-    • <strong>रिफ्रेश सुरक्षितता:</strong> एकदा नाव व डेटा भरल्यानंतर पेज रिफ्रेश केले तरी कोणतीही नोंद किंवा तारीख गायब होणार नाही.<br>
-    • <strong>स्वतंत्र रजा खर्च:</strong> प्रत्येक रजा स्वतंत्र असल्याने ML संपल्यावर EL मधून किंवा EL संपल्यावर LWP मध्ये परस्पर रजा वजा होणार नाही.
-</div>
-
-<!-- 🌟 ३ नवीन रिपोर्ट टेबल्स 🌟 -->
+<!-- 🌟 नवीन रिपोर्ट टेबल्स 🌟 -->
 <h3 class="report-title">४अ. तक्ता १: सेवापुस्तकावरील मॅन्युअल पानांची ढोबळ गोळाबेरीज (Service Book Raw Summary)</h3>
 <div style="overflow-x: auto;">
 <table id="sbRawSummaryTable">
@@ -259,6 +220,53 @@ window.onload = function() {
     renderComparativeTable();
     isAppReady = true; 
 };
+
+// 🌟 लाईव्ह डेटावरून बॅकअप घेण्याचे आणि रिस्टोअर करण्याचे मजबूत फंक्शन 🌟
+function downloadBackup() {
+    if (auditEntries.length === 0) { alert("बॅकअप घेण्यासाठी कोणताही डेटा उपलब्ध नाही!"); return; }
+    let backupData = {
+        entries: JSON.stringify(auditEntries),
+        breaks: JSON.stringify(pageBreaks),
+        closure: document.getElementById('global_closure_check').checked ? "true" : "false",
+        empName: document.getElementById('aud_emp_name').value,
+        empPf: document.getElementById('aud_emp_pf').value,
+        joinDate: document.getElementById('aud_join_date').value
+    };
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+    let downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "PMC_Audit_Backup_" + (backupData.empPf || "Data") + ".json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+function restoreBackup() {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+        let file = e.target.files[0];
+        let reader = new FileReader();
+        reader.readAsText(file, 'UTF-8');
+        reader.onload = readerEvent => {
+            try {
+                let content = JSON.parse(readerEvent.target.result);
+                if(content.entries) localStorage.setItem("pmc_audit_4tables_exact_v14", content.entries);
+                if(content.breaks) localStorage.setItem("pmc_audit_pagebreaks_v14", content.breaks);
+                if(content.closure) localStorage.setItem("pmc_audit_closure_v14", content.closure);
+                if(content.empName) localStorage.setItem("pmc_aud_emp_name", content.empName);
+                if(content.empPf) localStorage.setItem("pmc_aud_emp_pf", content.empPf);
+                if(content.joinDate) localStorage.setItem("pmc_aud_join_date", content.joinDate);
+                alert("डेटा यशस्वीरित्या रिस्टोअर झाला! पेज रिफ्रेश होत आहे...");
+                location.reload();
+            } catch(err) {
+                alert("चुकीची किंवा करप्ट बॅकअप फाईल!");
+            }
+        }
+    }
+    input.click();
+}
 
 function saveHeaderInfo() {
     localStorage.setItem("pmc_aud_emp_name", document.getElementById('aud_emp_name').value);
@@ -416,11 +424,20 @@ function addAnnualExtraLeavePrompt() {
     recalculateAllRecords();
 }
 
+function insertPageBreakAt(idx) {
+    if (!pageBreaks.includes(idx)) {
+        pageBreaks.push(idx);
+        pageBreaks.sort((a, b) => a - b);
+        localStorage.setItem("pmc_audit_pagebreaks_v14", JSON.stringify(pageBreaks));
+        renderComparativeTable();
+    } else {
+        alert("या ओळीवर आधीच पेज ब्रेक दिलेला आहे!");
+    }
+}
+
 function addManualPageBreak() {
     if (auditEntries.length === 0) { alert("आधी नोंदी जोडा!"); return; }
-    pageBreaks.push(auditEntries.length - 1);
-    localStorage.setItem("pmc_audit_pagebreaks_v14", JSON.stringify(pageBreaks));
-    renderComparativeTable();
+    insertPageBreakAt(auditEntries.length - 1);
 }
 
 function removeManualPageBreak(idx) {
@@ -542,7 +559,6 @@ function recalculateAllRecords() {
         let dueR = (dO && dP && dP >= dO && !rowIsClosure) ? Math.round((dP.getTime() - dO.getTime()) / 86400000) + 1 : 0;
         row.calcDueR = dueR;
 
-        // 🌟 अहवालासाठी स्वतंत्र रजा ट्रॅकिंग 🌟
         row.actualSpentEL = 0; row.actualSpentML = 0; row.actualSpentSpl = 0; row.actualAutoLwp = 0;
 
         if (rowIsClosure) {
@@ -569,7 +585,6 @@ function recalculateAllRecords() {
 
         curDueEL = row.calcDueFinalEL; curDueML = row.calcDueFinalML;
 
-        // तक्ता १: SB
         let autoSbF = 0;
         if (rowIsClosure) {
             row.sbO = "---"; row.sbP = "---"; row.sbQ = "सेवा समाप्ती (हिशोब बंद)";
@@ -605,7 +620,6 @@ function recalculateAllRecords() {
 
         curSbEL = row.calcSbFinalEL; curSbML = row.calcSbFinalML;
 
-        // तक्ता ३
         row.diffF = row.calcSbF - row.calcDueF;
         row.diffE = (parseFloat(row.sbE) || 0) - (parseFloat(row.dueE) || 0);
         row.diffG = diffLeaveUnits(row.calcSbG, row.calcDueG, 11);
@@ -624,7 +638,6 @@ function recalculateAllRecords() {
 
         row.diffLwp = ((row.dueQ === "बिनपगारी रजा" ? row.calcDueR : 0) - (parseFloat(row.sbCustomLwp) || (row.sbQ === "बिनपगारी रजा" ? row.calcSbR : 0)));
 
-        // तक्ता ४
         let remList = [];
         let hasVariance = false;
         if (parseFloat(row.diffZ) > 0) { remList.push(`या नोंदीत EL ${row.diffZ} जास्त जमा.`); hasVariance = true; }
@@ -673,7 +686,12 @@ function renderComparativeTable() {
                 <td>---</td>
                 <td class="remark-cell">${row.manualRemark}</td>
                 <td><input type="text" class="table-input" value="${row.manualRemark}" onchange="updateSbField(${idx}, 'manualRemark', this.value)"></td>
-                <td><button class="btn-row-del" onclick="deleteAuditRow(${idx})">रद्द</button></td>
+                <td>
+                    <div style="display:flex; gap:4px; justify-content:center;">
+                        <button class="btn-row-brk" onclick="insertPageBreakAt(${idx})" title="येथे पेज ब्रेक द्या">🛑 ब्रेक</button>
+                        <button class="btn-row-del" onclick="deleteAuditRow(${idx})" title="ही नोंद रद्द करा">रद्द</button>
+                    </div>
+                </td>
             `;
         } else {
             let tr = tbody.insertRow();
@@ -753,7 +771,12 @@ function renderComparativeTable() {
                 <!-- तक्ता ४ -->
                 <td class="remark-cell">${row.systemRemark}</td>
                 <td><input type="text" class="table-input" style="text-align:left !important; width:130px !important;" placeholder="शेरा टाइप करा..." value="${row.manualRemark || ''}" onchange="updateSbField(${idx}, 'manualRemark', this.value)"></td>
-                <td><button class="btn-row-del" onclick="deleteAuditRow(${idx})">रद्द</button></td>
+                <td>
+                    <div style="display:flex; gap:4px; justify-content:center;">
+                        <button class="btn-row-brk" onclick="insertPageBreakAt(${idx})" title="येथे पेज ब्रेक द्या">🛑 ब्रेक</button>
+                        <button class="btn-row-del" onclick="deleteAuditRow(${idx})" title="ही नोंद रद्द करा">रद्द</button>
+                    </div>
+                </td>
             `;
         }
 
@@ -966,51 +989,6 @@ function clearAuditData() {
         document.getElementById('global_closure_check').checked = false; document.getElementById('aud_emp_name').value = ""; document.getElementById('aud_emp_pf').value = ""; document.getElementById('aud_join_date').value = "01/01/1990";
         renderComparativeTable();
     }
-}
-    function downloadBackup() {
-    if (auditEntries.length === 0) { alert("बॅकअप घेण्यासाठी कोणताही डेटा उपलब्ध नाही!"); return; }
-    let backupData = {
-        entries: localStorage.getItem("pmc_audit_4tables_exact_v14"),
-        breaks: localStorage.getItem("pmc_audit_pagebreaks_v14"),
-        closure: localStorage.getItem("pmc_audit_closure_v14"),
-        empName: localStorage.getItem("pmc_aud_emp_name"),
-        empPf: localStorage.getItem("pmc_aud_emp_pf"),
-        joinDate: localStorage.getItem("pmc_aud_join_date")
-    };
-    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
-    let downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "PMC_Audit_Backup_" + (backupData.empPf || "Data") + ".json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-}
-
-function restoreBackup() {
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = e => {
-        let file = e.target.files[0];
-        let reader = new FileReader();
-        reader.readAsText(file, 'UTF-8');
-        reader.onload = readerEvent => {
-            try {
-                let content = JSON.parse(readerEvent.target.result);
-                if(content.entries) localStorage.setItem("pmc_audit_4tables_exact_v14", content.entries);
-                if(content.breaks) localStorage.setItem("pmc_audit_pagebreaks_v14", content.breaks);
-                if(content.closure) localStorage.setItem("pmc_audit_closure_v14", content.closure);
-                if(content.empName) localStorage.setItem("pmc_aud_emp_name", content.empName);
-                if(content.empPf) localStorage.setItem("pmc_aud_emp_pf", content.empPf);
-                if(content.joinDate) localStorage.setItem("pmc_aud_join_date", content.joinDate);
-                alert("डेटा यशस्वीरित्या रिस्टोअर झाला! पेज रिफ्रेश होत आहे...");
-                location.reload();
-            } catch(err) {
-                alert("चुकीची किंवा करप्ट बॅकअप फाईल!");
-            }
-        }
-    }
-    input.click();
 }
 </script>
 </body>
