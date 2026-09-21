@@ -45,6 +45,7 @@ tr:nth-child(even) { background-color: #fafafa; }
 .diff-alert { font-weight: bold; color: #b71c1c; background: #ffebee; }
 .remark-cell { text-align: left !important; padding: 4px 6px !important; font-size: 9px; line-height: 1.3; }
 .btn-row-del { background: #d32f2f; color: #ffffff; border: none; padding: 3px 6px; cursor: pointer; font-size: 9px; border-radius: 3px; }
+.btn-row-brk { background: #0288d1; color: #ffffff; border: none; padding: 4px 6px; cursor: pointer; font-size: 9px; border-radius: 3px; font-weight:bold; }
 h3.report-title { font-size: 15px; margin-top: 25px; margin-bottom: 8px; color: #000; font-weight: bold; }
 </style>
 </head>
@@ -107,7 +108,7 @@ h3.report-title { font-size: 15px; margin-top: 25px; margin-bottom: 8px; color: 
     <button class="btn-pagebreak" onclick="addManualPageBreak()">🛑 पेज ब्रेक करा (शेवटच्या ओळीवर)</button>
 </div>
 
-<!-- 🌟 नवीन रिपोर्ट टेबल्स 🌟 -->
+<!-- 🌟 ३ नवीन रिपोर्ट टेबल्स 🌟 -->
 <h3 class="report-title">४अ. तक्ता १: सेवापुस्तकावरील मॅन्युअल पानांची ढोबळ गोळाबेरीज (Service Book Raw Summary)</h3>
 <div style="overflow-x: auto;">
 <table id="sbRawSummaryTable">
@@ -209,9 +210,27 @@ window.onload = function() {
         document.getElementById('aud_join_date').value = "01/01/1990";
     }
 
-    let saved = localStorage.getItem("pmc_audit_4tables_exact_v14"); 
-    let savedBreaks = localStorage.getItem("pmc_audit_pagebreaks_v14");
-    let savedClosure = localStorage.getItem("pmc_audit_closure_v14");
+    // 🌟 Auto-Migration Logic (जुन्या सर्व Keys मधून डेटा शोधणे) 🌟
+    let saved = localStorage.getItem("pmc_audit_4tables_exact_v14") || 
+                localStorage.getItem("pmc_audit_4tables_exact_v13") ||
+                localStorage.getItem("pmc_audit_4tables_exact_v12") ||
+                localStorage.getItem("pmc_audit_4tables_exact_v11") ||
+                localStorage.getItem("pmc_audit_4tables_exact_v10") ||
+                localStorage.getItem("pmc_audit_4tables_exact_v9") ||
+                localStorage.getItem("pmc_audit_4tables_chain_v8") ||
+                localStorage.getItem("pmc_audit_4tables_chain_v7");
+
+    let savedBreaks = localStorage.getItem("pmc_audit_pagebreaks_v14") || 
+                      localStorage.getItem("pmc_audit_pagebreaks_v13") ||
+                      localStorage.getItem("pmc_audit_pagebreaks_v12") ||
+                      localStorage.getItem("pmc_audit_pagebreaks_v11") ||
+                      localStorage.getItem("pmc_audit_pagebreaks_v10");
+
+    let savedClosure = localStorage.getItem("pmc_audit_closure_v14") || 
+                       localStorage.getItem("pmc_audit_closure_v13") ||
+                       localStorage.getItem("pmc_audit_closure_v12") ||
+                       localStorage.getItem("pmc_audit_closure_v11") ||
+                       localStorage.getItem("pmc_audit_closure_v10");
 
     if (saved) { try { auditEntries = JSON.parse(saved); } catch(e) { auditEntries = []; } }
     if (savedBreaks) { try { pageBreaks = JSON.parse(savedBreaks); } catch(e) { pageBreaks = []; } }
@@ -221,7 +240,7 @@ window.onload = function() {
     isAppReady = true; 
 };
 
-// 🌟 लाईव्ह डेटावरून बॅकअप घेण्याचे आणि रिस्टोअर करण्याचे मजबूत फंक्शन 🌟
+// 🌟 सुरक्षित बॅकअप व रिस्टोअर 🌟
 function downloadBackup() {
     if (auditEntries.length === 0) { alert("बॅकअप घेण्यासाठी कोणताही डेटा उपलब्ध नाही!"); return; }
     let backupData = {
@@ -252,12 +271,18 @@ function restoreBackup() {
         reader.onload = readerEvent => {
             try {
                 let content = JSON.parse(readerEvent.target.result);
-                if(content.entries) localStorage.setItem("pmc_audit_4tables_exact_v14", content.entries);
-                if(content.breaks) localStorage.setItem("pmc_audit_pagebreaks_v14", content.breaks);
+                
+                // Forcing arrays into string if they were parsed as objects
+                let entStr = typeof content.entries === "object" ? JSON.stringify(content.entries) : content.entries;
+                let brkStr = typeof content.breaks === "object" ? JSON.stringify(content.breaks) : content.breaks;
+                
+                if(entStr) localStorage.setItem("pmc_audit_4tables_exact_v14", entStr);
+                if(brkStr) localStorage.setItem("pmc_audit_pagebreaks_v14", brkStr);
                 if(content.closure) localStorage.setItem("pmc_audit_closure_v14", content.closure);
                 if(content.empName) localStorage.setItem("pmc_aud_emp_name", content.empName);
                 if(content.empPf) localStorage.setItem("pmc_aud_emp_pf", content.empPf);
                 if(content.joinDate) localStorage.setItem("pmc_aud_join_date", content.joinDate);
+                
                 alert("डेटा यशस्वीरित्या रिस्टोअर झाला! पेज रिफ्रेश होत आहे...");
                 location.reload();
             } catch(err) {
