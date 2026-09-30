@@ -79,7 +79,7 @@ h3.report-title { font-size: 15px; margin-top: 25px; margin-bottom: 8px; color: 
     </div>
 </div>
 
-<h3 style="font-size: 13px; margin: 8px 0; color: #0d47a1;">📋 शेजारी-शेजारी ४ तक्त्यांचा तुलनात्मक ताळेबंद (Base-11 व Base-30 शुद्ध हिशोब)</h3>
+<h3 style="font-size: 13px; margin: 8px 0; color: #0d47a1;">📋 शेजारी-शेजारी ४ तक्त्यांचा तुलनात्मक ताळेबंद</h3>
 <div style="overflow-x: auto;">
 <table id="comparativeAuditTable">
 <thead>
@@ -108,7 +108,11 @@ h3.report-title { font-size: 15px; margin-top: 25px; margin-bottom: 8px; color: 
     <button class="btn-pagebreak" onclick="addManualPageBreak()">🛑 पेज ब्रेक करा (शेवटच्या ओळीवर)</button>
 </div>
 
-<!-- 🌟 ३ नवीन रिपोर्ट टेबल्स 🌟 -->
+<div style="margin-top: 15px; font-size: 11px; line-height: 1.5; background: #ffffff; border: 1px solid #cfd8dc; padding: 10px; border-radius: 4px;">
+    <strong>अद्ययावत हिशोब मार्गदर्शक:</strong><br>
+    • <strong>डेटा शुद्धीकरण (Auto-Sanitization):</strong> आता रजेच्या नावात बॅकअपमध्ये काही त्रुटी असली तरी सिस्टीम आपोआप शुद्धीकरण करून अचूक बेरीज (उदा. EL 38) दाखवेल.
+</div>
+
 <h3 class="report-title">४अ. तक्ता १: सेवापुस्तकावरील मॅन्युअल पानांची ढोबळ गोळाबेरीज (Service Book Raw Summary)</h3>
 <div style="overflow-x: auto;">
 <table id="sbRawSummaryTable">
@@ -217,9 +221,20 @@ window.onload = function() {
         document.getElementById('aud_join_date').value = "01/01/1990";
     }
 
-    let saved = localStorage.getItem("pmc_audit_4tables_exact_v20") || localStorage.getItem("pmc_audit_4tables_exact_v19") || localStorage.getItem("pmc_audit_4tables_exact_v18") || localStorage.getItem("pmc_audit_4tables_exact_v17");
-    let savedBreaks = localStorage.getItem("pmc_audit_pagebreaks_v20") || localStorage.getItem("pmc_audit_pagebreaks_v19") || localStorage.getItem("pmc_audit_pagebreaks_v18") || localStorage.getItem("pmc_audit_pagebreaks_v17");
-    let savedClosure = localStorage.getItem("pmc_audit_closure_v20") || localStorage.getItem("pmc_audit_closure_v19") || localStorage.getItem("pmc_audit_closure_v18") || localStorage.getItem("pmc_audit_closure_v17");
+    let saved = localStorage.getItem("pmc_audit_4tables_exact_v21") || 
+                localStorage.getItem("pmc_audit_4tables_exact_v20") || 
+                localStorage.getItem("pmc_audit_4tables_exact_v19") || 
+                localStorage.getItem("pmc_audit_4tables_exact_v18");
+
+    let savedBreaks = localStorage.getItem("pmc_audit_pagebreaks_v21") || 
+                      localStorage.getItem("pmc_audit_pagebreaks_v20") || 
+                      localStorage.getItem("pmc_audit_pagebreaks_v19") || 
+                      localStorage.getItem("pmc_audit_pagebreaks_v18");
+
+    let savedClosure = localStorage.getItem("pmc_audit_closure_v21") || 
+                       localStorage.getItem("pmc_audit_closure_v20") || 
+                       localStorage.getItem("pmc_audit_closure_v19") || 
+                       localStorage.getItem("pmc_audit_closure_v18");
 
     if (saved) { try { auditEntries = JSON.parse(saved); } catch(e) { auditEntries = []; } }
     if (savedBreaks) { try { pageBreaks = JSON.parse(savedBreaks); } catch(e) { pageBreaks = []; } }
@@ -262,9 +277,9 @@ function restoreBackup() {
                 let entStr = typeof content.entries === "object" ? JSON.stringify(content.entries) : content.entries;
                 let brkStr = typeof content.breaks === "object" ? JSON.stringify(content.breaks) : content.breaks;
                 
-                if(entStr) localStorage.setItem("pmc_audit_4tables_exact_v20", entStr);
-                if(brkStr) localStorage.setItem("pmc_audit_pagebreaks_v20", brkStr);
-                if(content.closure) localStorage.setItem("pmc_audit_closure_v20", content.closure);
+                if(entStr) localStorage.setItem("pmc_audit_4tables_exact_v21", entStr);
+                if(brkStr) localStorage.setItem("pmc_audit_pagebreaks_v21", brkStr);
+                if(content.closure) localStorage.setItem("pmc_audit_closure_v21", content.closure);
                 if(content.empName) localStorage.setItem("pmc_aud_emp_name", content.empName);
                 if(content.empPf) localStorage.setItem("pmc_aud_emp_pf", content.empPf);
                 if(content.joinDate) localStorage.setItem("pmc_aud_join_date", content.joinDate);
@@ -438,7 +453,7 @@ function insertPageBreakAt(idx) {
     if (!pageBreaks.includes(idx)) {
         pageBreaks.push(idx);
         pageBreaks.sort((a, b) => a - b);
-        localStorage.setItem("pmc_audit_pagebreaks_v20", JSON.stringify(pageBreaks));
+        localStorage.setItem("pmc_audit_pagebreaks_v21", JSON.stringify(pageBreaks));
         renderComparativeTable();
     } else {
         alert("या ओळीवर आधीच पेज ब्रेक दिलेला आहे!");
@@ -452,12 +467,12 @@ function addManualPageBreak() {
 
 function removeManualPageBreak(idx) {
     pageBreaks = pageBreaks.filter(b => b !== idx);
-    localStorage.setItem("pmc_audit_pagebreaks_v20", JSON.stringify(pageBreaks));
+    localStorage.setItem("pmc_audit_pagebreaks_v21", JSON.stringify(pageBreaks));
     renderComparativeTable();
 }
 
 function handleGlobalClosureToggle(isChecked) {
-    localStorage.setItem("pmc_audit_closure_v20", isChecked ? "true" : "false");
+    localStorage.setItem("pmc_audit_closure_v21", isChecked ? "true" : "false");
     recalculateAllRecords();
 }
 
@@ -532,6 +547,17 @@ function updateDueField(idx, field, rawVal) {
 function recalculateAllRecords() {
     let isGlobalClosure = document.getElementById('global_closure_check').checked;
     let curDueEL = 0.00, curDueML = 0.00, curSbEL = 0.00, curSbML = 0.00;
+
+    // 🌟 अत्यंत महत्त्वाची दुरुस्ती: डेटा लोड होतानाच नावे शुद्ध करणे 🌟
+    const validLeaves = ["हक्काची रजा", "वैद्यकीय रजा", "विशेष रजा", "बिनपगारी रजा", "सरेंडर रजा"];
+    auditEntries.forEach(row => {
+        if (row.type !== "extra") {
+            if (row.sbQ) row.sbQ = row.sbQ.toString().trim();
+            if (row.dueQ) row.dueQ = row.dueQ.toString().trim();
+            if (!validLeaves.includes(row.sbQ)) row.sbQ = "हक्काची रजा";
+            if (!validLeaves.includes(row.dueQ)) row.dueQ = "हक्काची रजा";
+        }
+    });
 
     auditEntries.forEach((row, idx) => {
         let isLastRow = (idx === auditEntries.length - 1);
@@ -666,7 +692,7 @@ function recalculateAllRecords() {
         row.systemRemark = remList.join(" ");
     });
 
-    localStorage.setItem("pmc_audit_4tables_exact_v20", JSON.stringify(auditEntries));
+    localStorage.setItem("pmc_audit_4tables_exact_v21", JSON.stringify(auditEntries));
     renderComparativeTable();
 }
 
@@ -903,7 +929,6 @@ function renderReports() {
             let pageEndStr = row.dueP && row.dueP !== "---" ? row.dueP : (row.dueB && row.dueB !== "---" ? row.dueB : "");
             let period = `${pageStartStr} ते ${pageEndStr}`;
             
-            // 🌟 एकूण सेवा दिवस कॅल्क्युलेशन 🌟
             let pgTotalDaysSb = pgSbF + pgSbSpentEL + pgSbSpentML + pgSbLwp;
             let pgTotalDaysDue = pgDueF + pgDueSpentEL + pgDueSpentML + pgDueSpentSpl + pgDueLwp;
 
@@ -947,7 +972,6 @@ function renderReports() {
         }
     });
 
-    // 🌟 ग्रँड टोटल (एकूण सेवा दिवस) 🌟
     let finalSbEL = auditEntries.length > 0 ? safeParse(auditEntries[auditEntries.length-1].calcSbFinalEL, 0) : 0;
     let finalSbML = auditEntries.length > 0 ? safeParse(auditEntries[auditEntries.length-1].calcSbFinalML, 0) : 0;
     let gTotalDaysSb = gSbF + gSbSpentEL + gSbSpentML + gSbLwp;
@@ -1081,7 +1105,7 @@ function exportComparativeExcel() {
 function clearAuditData() {
     if (confirm("सर्व तुलनात्मक ऑडिट नोंदी पुसल्या जातील. खात्री आहे का?")) {
         auditEntries = []; pageBreaks = [];
-        localStorage.removeItem("pmc_audit_4tables_exact_v20"); localStorage.removeItem("pmc_audit_pagebreaks_v20"); localStorage.removeItem("pmc_audit_closure_v20"); localStorage.removeItem("pmc_aud_emp_name"); localStorage.removeItem("pmc_aud_emp_pf"); localStorage.removeItem("pmc_aud_join_date");
+        localStorage.removeItem("pmc_audit_4tables_exact_v21"); localStorage.removeItem("pmc_audit_pagebreaks_v21"); localStorage.removeItem("pmc_audit_closure_v21"); localStorage.removeItem("pmc_aud_emp_name"); localStorage.removeItem("pmc_aud_emp_pf"); localStorage.removeItem("pmc_aud_join_date");
         document.getElementById('global_closure_check').checked = false; document.getElementById('aud_emp_name').value = ""; document.getElementById('aud_emp_pf').value = ""; document.getElementById('aud_join_date').value = "01/01/1990";
         renderComparativeTable();
     }
