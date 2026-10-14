@@ -2491,23 +2491,7 @@ function downloadFixationStatementExcel() {
 function clearFixationStatement() { calculatedStatements = []; renderStatementTable(); document.getElementById('fixationRuleMsg').style.display = "none"; }
 </script>
 
-              
-              localStorage.setItem("pmc_employee_db", JSON.stringify(localDb));
-              updateEmployeeDropdown();
-              
-              let activePf = localStorage.getItem("pmc_active_emp_pf");
-              if(activePf && localDb[activePf]) {
-                  document.getElementById('global_employee_select').value = activePf;
-                  loadSelectedEmployeeData();
               }
-          }).catch((error) => {
-              console.log("ऑनलाईन डेटा आणताना चूक झाली: ", error);
-          });
-          
-      } else {
-          document.getElementById('loginScreen').style.display = 'block';
-          document.getElementById('mainApp').style.display = 'none';
-      }
 
 </script>
 </body>
