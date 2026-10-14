@@ -2508,73 +2508,7 @@ function clearFixationStatement() { calculatedStatements = []; renderStatementTa
           document.getElementById('loginScreen').style.display = 'block';
           document.getElementById('mainApp').style.display = 'none';
       }
-  });
 
- function loginUser() {
-    let email = document.getElementById('userEmail').value.trim();
-    let pass = document.getElementById('userPassword').value.trim();
-
-    if(!email || !pass) {
-        alert("⚠️ कृपया आधी ई-मेल आणि पासवर्ड टाका!");
-        return;
-    }
-
-    if(typeof auth !== "undefined" && auth) {
-        auth.signInWithEmailAndPassword(email, pass)
-        .then((userCredential) => {
-            alert("लॉगिन यशस्वी झाले!");
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('logged_in_user_email').innerText = userCredential.user.email;
-        })
-        .catch((error) => {
-            alert("ऑनलाईन लॉगिन त्रुटी: " + error.message + "\n\nस्थानिक मोडमध्ये सिस्टीम उघडली जात आहे.");
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('logged_in_user_email').innerText = email;
-        });
-    } else {
-        alert("स्थानिक मोडमध्ये लॉगिन यशस्वी!");
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('logged_in_user_email').innerText = email;
-    }
-}
-
-
-function registerAndSendVerification() {
-    let email = document.getElementById('userEmail').value;
-    let pass = document.getElementById('userPassword').value;
-
-    if(!email || !pass) { alert("कृपया ईमेल आणि पासवर्ड टाका!"); return; }
-
-    auth.createUserWithEmailAndPassword(email, pass)
-    .then((userCredential) => {
-        return userCredential.user.sendEmailVerification();
-    })
-    .then(() => {
-        alert("तुमच्या " + email + " या इमेलवर पडताळणी लिंक पाठवली आहे. ईमेल तपासा आणि व्हेरीफाय करा.");
-        auth.signOut();
-    })
-    .catch((error) => {
-        if(error.code === 'auth/email-already-in-use') {
-            auth.signInWithEmailAndPassword(email, pass)
-            .then((userCredential) => {
-                if(userCredential.user.emailVerified === false) {
-                    userCredential.user.sendEmailVerification().then(() => {
-                        alert("पडताळणी लिंक तुम्हाला पुन्हा पाठवली आहे. कृपया इनबॉक्स तपासा.");
-                        auth.signOut();
-                    });
-                } else {
-                    alert("हा ईमेल आधीच व्हेरीफाय झालेला आहे. कृपया 'लॉगिन करा' बटणावर क्लिक करा.");
-                    auth.signOut();
-                }
-            }).catch((err) => alert("त्रुटी: " + err.message));
-        } else {
-            alert("त्रुटी: " + error.message);
-        }
-    });
-}
 </script>
 </body>
 </html>
